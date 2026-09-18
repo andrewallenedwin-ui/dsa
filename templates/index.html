@@ -46,6 +46,34 @@
             </div>
         </div>
 
+        <!-- Academic Programs & Fee Structure Showcase (Subsidized & Self-Financed) -->
+        <section class="card wide-card fee-structure-card" id="feesSection">
+            <div class="card-header">
+                <div class="card-icon">💰</div>
+                <div>
+                    <h2>Academic Programs & Tuition Fee Structure (2026–2027)</h2>
+                    <p class="small-text">
+                        Explore subsidized Government Aided and Self-Financed (SFS) semester fees across all 33 departments before applying.
+                    </p>
+                </div>
+            </div>
+
+            <div class="fee-filter-bar">
+                <div class="fee-stream-tabs">
+                    <button type="button" class="pill-btn active" id="feePillAll" onclick="filterFeesByStream('All')">All Programs (33)</button>
+                    <button type="button" class="pill-btn" id="feePillAided" onclick="filterFeesByStream('Aided')">Govt Aided (Day Shift)</button>
+                    <button type="button" class="pill-btn" id="feePillSFS" onclick="filterFeesByStream('SFS')">Self-Financed (SFS)</button>
+                </div>
+                <div class="fee-search-wrap">
+                    <input type="text" id="feeSearchInput" placeholder="🔍 Search degree, stream, or course..." oninput="handleFeeSearch()">
+                </div>
+            </div>
+
+            <div id="feeCardsGrid" class="fee-cards-grid">
+                <p class="loading-text">Loading programs and fee schedule...</p>
+            </div>
+        </section>
+
         <main class="student-grid">
             <!-- Application Form Card -->
             <section class="card form-card">
@@ -299,6 +327,8 @@
     <script>
         let allCoursesData = [];
 
+        let currentFeeStream = 'All';
+
         // Fetch courses on page load
         async function loadCourses() {
             try {
@@ -308,9 +338,109 @@
                     allCoursesData = data.courses;
                     populateCourseDropdown();
                     renderCourseSnapshot('All');
+                    renderFeesGrid('All');
                 }
             } catch (err) {
                 console.error("Error loading courses:", err);
+            }
+        }
+
+        // Fee Structure Showcase Rendering
+        function renderFeesGrid(stream = 'All', query = '') {
+            const grid = document.getElementById("feeCardsGrid");
+            if (!grid) return;
+
+            let filtered = allCoursesData;
+            if (stream !== 'All') {
+                filtered = filtered.filter(c => c.stream === stream);
+            }
+            if (query) {
+                filtered = filtered.filter(c => 
+                    c.name.toLowerCase().includes(query) || 
+                    c.category.toLowerCase().includes(query) ||
+                    c.stream.toLowerCase().includes(query)
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: #64748b;">
+                        <p style="font-size: 1.1rem; margin-bottom: 6px;">🔍 No academic programs found matching "<strong>${query}</strong>"</p>
+                        <small>Try searching for "Computer Science", "Commerce", "Tamil", or switch streams.</small>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(c => {
+                const streamClass = c.stream === 'Aided' ? 'stream-aided' : 'stream-sfs';
+                const streamBadge = c.stream === 'Aided' ? 'Govt Aided' : 'Self-Financed (SFS)';
+                const shiftNote = c.stream === 'Aided' ? 'Day Shift (08:30 AM - 01:30 PM)' : 'Evening Shift (01:45 PM - 06:15 PM)';
+                const feeFormatted = Number(c.tuition_fee || 0).toLocaleString('en-IN');
+                const safeName = c.name.replace(/'/g, "\\'");
+
+                return `
+                    <div class="fee-card ${c.stream === 'SFS' ? 'stream-sfs' : ''}">
+                        <div class="fee-card-top">
+                            <div class="fee-badges-row">
+                                <span class="fee-badge-stream ${streamClass}">${streamBadge}</span>
+                                <span class="fee-badge-category">${c.category}</span>
+                            </div>
+                            <h4>${c.name}</h4>
+                            <div class="fee-dept-cat">${shiftNote}</div>
+                        </div>
+                        <div class="fee-meta-row">
+                            <span>🎯 Cutoff: <strong>${c.cutoff}%</strong></span>
+                            <span>💺 Seats: <strong>${c.available_seats} / ${c.total_seats}</strong></span>
+                        </div>
+                        <div class="fee-pricing-footer">
+                            <div class="fee-amount-box">
+                                <span class="fee-lbl">Tuition Fee</span>
+                                <span class="fee-val">₹${feeFormatted} <small>/ sem</small></span>
+                            </div>
+                            <button type="button" class="btn-apply-fee" onclick="applyForCourse('${safeName}', '${c.stream}')">Apply Now →</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterFeesByStream(stream) {
+            currentFeeStream = stream;
+            document.getElementById("feePillAll").classList.toggle("active", stream === 'All');
+            document.getElementById("feePillAided").classList.toggle("active", stream === 'Aided');
+            document.getElementById("feePillSFS").classList.toggle("active", stream === 'SFS');
+            const query = (document.getElementById("feeSearchInput")?.value || '').trim().toLowerCase();
+            renderFeesGrid(stream, query);
+        }
+
+        function handleFeeSearch() {
+            const query = (document.getElementById("feeSearchInput")?.value || '').trim().toLowerCase();
+            renderFeesGrid(currentFeeStream, query);
+        }
+
+        function applyForCourse(courseName, stream) {
+            const streamSelect = document.getElementById("streamSelect");
+            if (streamSelect) {
+                streamSelect.value = stream;
+                filterCoursesByStream();
+            }
+            const deptSelect = document.getElementById("department");
+            if (deptSelect) {
+                deptSelect.value = courseName;
+            }
+            const formSection = document.getElementById("applicationForm");
+            if (formSection) {
+                formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const nameInput = document.getElementById("name");
+                if (nameInput) {
+                    setTimeout(() => {
+                        nameInput.focus();
+                        nameInput.style.transition = "box-shadow 0.3s ease";
+                        nameInput.style.boxShadow = "0 0 0 4px rgba(16, 185, 129, 0.4)";
+                        setTimeout(() => nameInput.style.boxShadow = "", 1500);
+                    }, 400);
+                }
             }
         }
 
@@ -634,8 +764,213 @@
             }
         }
 
+        // ==========================================
+        // ABC FRIEND (ஏபிசி நண்பன்) Chatbox Logic
+        // ==========================================
+        let chatLang = 'auto';
+
+        function toggleChatbox() {
+            const modal = document.getElementById("chatWindow");
+            if (!modal) return;
+            const isHidden = modal.classList.toggle("hidden");
+            if (!isHidden) {
+                const input = document.getElementById("chatUserInput");
+                if (input) input.focus();
+            }
+        }
+
+        function toggleChatLanguage() {
+            if (chatLang === 'auto') {
+                chatLang = 'ta';
+                document.getElementById("chatLangBtn").textContent = "தமிழ் (Tamil)";
+            } else if (chatLang === 'ta') {
+                chatLang = 'en';
+                document.getElementById("chatLangBtn").textContent = "English";
+            } else {
+                chatLang = 'auto';
+                document.getElementById("chatLangBtn").textContent = "தமிழ் / EN";
+            }
+        }
+
+        function sendQuickPrompt(promptText) {
+            const input = document.getElementById("chatUserInput");
+            if (input) {
+                input.value = promptText;
+                const form = input.closest("form");
+                if (form) {
+                    form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+                }
+            }
+        }
+
+        function formatChatBotMessage(text) {
+            let escaped = text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+            
+            escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            const lines = escaped.split('\n');
+            let formattedHtml = '';
+            let inList = false;
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
+                    if (!inList) {
+                        formattedHtml += '<ul>';
+                        inList = true;
+                    }
+                    formattedHtml += `<li>${trimmed.substring(1).trim()}</li>`;
+                } else {
+                    if (inList) {
+                        formattedHtml += '</ul>';
+                        inList = false;
+                    }
+                    if (trimmed.length > 0) {
+                        formattedHtml += `<p>${trimmed}</p>`;
+                    }
+                }
+            });
+
+            if (inList) formattedHtml += '</ul>';
+            return formattedHtml;
+        }
+
+        async function handleChatSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById("chatUserInput");
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            input.value = '';
+            const messagesBox = document.getElementById("chatMessages");
+
+            // Append User Message
+            const userMsgDiv = document.createElement("div");
+            userMsgDiv.className = "chat-msg user";
+            userMsgDiv.innerHTML = `
+                <div class="chat-bubble">${msg.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <span class="chat-msg-time">Just now</span>
+            `;
+            messagesBox.appendChild(userMsgDiv);
+
+            // Append Typing Indicator
+            const typingDiv = document.createElement("div");
+            typingDiv.className = "chat-msg bot";
+            typingDiv.id = "chatTypingIndicator";
+            typingDiv.innerHTML = `
+                <div class="chat-bubble">
+                    <div class="chat-typing-dots"><span></span><span></span><span></span></div>
+                </div>
+            `;
+            messagesBox.appendChild(typingDiv);
+            messagesBox.scrollTop = messagesBox.scrollHeight;
+
+            try {
+                const res = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg, lang: chatLang })
+                });
+                const data = await res.json();
+                
+                const typingEl = document.getElementById("chatTypingIndicator");
+                if (typingEl) typingEl.remove();
+
+                const botMsgDiv = document.createElement("div");
+                botMsgDiv.className = "chat-msg bot";
+
+                let botContent = formatChatBotMessage(data.reply || "Sorry, I am unable to process that at the moment.");
+
+                if (data.suggestions && data.suggestions.length > 0) {
+                    const chipsHtml = data.suggestions.map(s => 
+                        `<button type="button" class="chat-inline-chip" onclick="sendQuickPrompt('${s.replace(/'/g, "\\'")}')">${s}</button>`
+                    ).join('');
+                    botContent += `<div class="chat-inline-suggestions">${chipsHtml}</div>`;
+                }
+
+                botMsgDiv.innerHTML = `
+                    <div class="chat-bubble">${botContent}</div>
+                    <span class="chat-msg-time">Just now</span>
+                `;
+                messagesBox.appendChild(botMsgDiv);
+            } catch (err) {
+                const typingEl = document.getElementById("chatTypingIndicator");
+                if (typingEl) typingEl.remove();
+
+                const errDiv = document.createElement("div");
+                errDiv.className = "chat-msg bot";
+                errDiv.innerHTML = `
+                    <div class="chat-bubble">
+                        <p>⚠️ Unable to connect to ABC FRIEND. Please verify your connection or call Admission Desk at <strong>+91 9342311026</strong>.</p>
+                    </div>
+                    <span class="chat-msg-time">Just now</span>
+                `;
+                messagesBox.appendChild(errDiv);
+            }
+
+            messagesBox.scrollTop = messagesBox.scrollHeight;
+        }
+
         // Initial fetch
         loadCourses();
     </script>
+
+    <!-- ABC FRIEND Floating Chatbot Launcher Button -->
+    <button type="button" class="chat-launcher-btn" id="chatLauncherBtn" onclick="toggleChatbox()" title="Chat with ABC FRIEND">
+        <span class="chat-avatar-bubble">🤖</span>
+        <span class="chat-launcher-text">
+            <span>ABC FRIEND</span>
+            <small>ஏபிசி நண்பன்</small>
+        </span>
+        <span class="chat-pulse-badge"></span>
+    </button>
+
+    <!-- ABC FRIEND Chat Window Modal -->
+    <div class="chat-window-modal hidden" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-bot-avatar">🤖</div>
+                <div>
+                    <h4>ABC FRIEND <span class="tamil-label">ஏபிசி நண்பன்</span></h4>
+                    <span class="chat-online-indicator"><span class="green-dot"></span> Admissions Desk Active</span>
+                </div>
+            </div>
+            <div class="chat-header-actions">
+                <button type="button" class="chat-lang-btn" id="chatLangBtn" onclick="toggleChatLanguage()" title="Toggle Language">தமிழ் / EN</button>
+                <button type="button" class="chat-close-btn" onclick="toggleChatbox()" title="Close">&times;</button>
+            </div>
+        </div>
+
+        <!-- Quick Prompt Chips Carousel -->
+        <div class="chat-chips-carousel" id="chatChips">
+            <button type="button" class="chat-chip" onclick="sendQuickPrompt('What is the fee structure for B.Sc Computer Science?')">💰 CS Fee Structure</button>
+            <button type="button" class="chat-chip" onclick="sendQuickPrompt('வணக்கம், சேர்க்கை கட்டணம் என்ன?')">தமிழ் கட்டண விபரம்</button>
+            <button type="button" class="chat-chip" onclick="sendQuickPrompt('What are the minimum cutoffs for Aided courses?')">🎯 Cutoff Criteria</button>
+            <button type="button" class="chat-chip" onclick="sendQuickPrompt('What documents/certificates are required for verification?')">📋 Certificates Needed</button>
+            <button type="button" class="chat-chip" onclick="sendQuickPrompt('How does the Selection Sort merit ranking work?')">🧠 DSA Selection Sort</button>
+            <button type="button" class="chat-chip" onclick="sendQuickPrompt('Admissions office contact number')">📞 Helpdesk Contact</button>
+        </div>
+
+        <!-- Messages Body -->
+        <div class="chat-messages-box" id="chatMessages">
+            <div class="chat-msg bot">
+                <div class="chat-bubble">
+                    <p>👋 <strong>Welcome to ABC College Admissions Desk!</strong> I am <strong>ABC FRIEND</strong> (ஏபிசி நண்பன்).</p>
+                    <p>I can help you with <strong>tuition fees</strong>, <strong>course cutoffs</strong>, <strong>certificate verification</strong>, <strong>6-subject percentage calculation</strong>, tracking your application queue, or DSA concepts.</p>
+                    <p><em>Ask me anything in English or தமிழில்!</em></p>
+                </div>
+                <span class="chat-msg-time">Just now</span>
+            </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <form class="chat-input-bar" onsubmit="handleChatSubmit(event)">
+            <input type="text" id="chatUserInput" placeholder="Ask ABC FRIEND or தமிழில் கேளுங்கள்..." autocomplete="off" required>
+            <button type="submit" class="chat-send-btn" title="Send">➤</button>
+        </form>
+    </div>
 </body>
 </html>

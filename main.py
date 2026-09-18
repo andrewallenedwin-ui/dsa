@@ -507,5 +507,335 @@ def reset_demo():
     })
 
 
+def generate_abc_friend_reply(user_msg, requested_lang="auto"):
+    text = (user_msg or "").strip()
+    lower_text = text.lower()
+
+    # Detect Tamil
+    is_tamil = (requested_lang == "ta") or any('\u0b80' <= char <= '\u0bff' for char in text)
+    if not is_tamil and any(w in lower_text for w in ["vanakkam", "kattanam", "eppadi", "saandridhal", "matheepen"]):
+        is_tamil = True
+
+    courses = models.get_course_stats()
+
+    # Check for specific course query
+    matched_course = None
+    for c in courses:
+        clean_name = c["name"].lower().replace("b.sc ", "").replace("b.a ", "").replace("b.com ", "").replace("b.s.w ", "").replace("b.c.a ", "")
+        code_clean = c["code"].lower()
+        if (clean_name in lower_text and len(clean_name) > 3) or (code_clean in lower_text) or (c["name"].lower() in lower_text):
+            matched_course = c
+            break
+
+    # SPECIFIC COURSE QUERY FIRST
+    if matched_course:
+        c = matched_course
+        fee_fmt = f"₹{c.get('tuition_fee', 0):,}"
+        if is_tamil:
+            return {
+                "reply": f"📘 **{c['name']} ({c['code']})** சேர்க்கை விவரங்கள்:\n\n"
+                         f"- **பிரிவு (Stream):** {c['stream']} ({'அரசு உதவிபெறும் பிரிவு' if c['stream'] == 'Aided' else 'சுயநிதி பிரிவு'})\n"
+                         f"- **பருவக் கட்டணம் (Tuition Fee):** **{fee_fmt} / பருவம்**\n"
+                         f"- **தகுதி கட்-ஆஃப்:** **{c['cutoff']}%**\n"
+                         f"- **அங்கீகரிக்கப்பட்ட இடங்கள்:** **{c['total_seats']}** (நிரப்பப்பட்டது: {c['filled_seats']}, மீதமுள்ளவை: {c['available_seats']})\n\n"
+                         f"இப்பிரிவிற்கு முகப்பு பக்கத்தில் உள்ள விண்ணப்ப படிவம் மூலம் உடனே விண்ணப்பிக்கலாம்!",
+                "lang": "ta",
+                "suggestions": ["மற்ற படிப்புகளின் கட்டணம்", "சான்றிதழ்கள் என்ன தேவை?", "விண்ணப்பிப்பது எப்படி?"]
+            }
+        else:
+            return {
+                "reply": f"📘 **Details for {c['name']} ({c['code']}):**\n\n"
+                         f"- **Stream:** {c['stream']} ({'Government Aided' if c['stream'] == 'Aided' else 'Self-Financed Shift'})\n"
+                         f"- **Tuition Fee:** **{fee_fmt} per semester**\n"
+                         f"- **Eligibility Cutoff:** **{c['cutoff']}%** aggregate\n"
+                         f"- **Total Seats:** **{c['total_seats']} seats** (Filled: {c['filled_seats']}, Available: {c['available_seats']})\n\n"
+                         f"You can apply for this program directly using the application form below on this portal!",
+                "lang": "en",
+                "suggestions": ["View Other Course Fees", "What Certificates Needed?", "How Selection Sort Works?"]
+            }
+
+    # GREETINGS (When greeting words appear and no specific query keywords like fee/cutoff/etc.)
+    has_domain_query = any(w in lower_text for w in [
+        "fee", "fees", "cost", "tuition", "கட்டணம்", "கட்டண", "பீஸ்",
+        "cutoff", "cut off", "marks needed", "minimum", "கட்-ஆஃப்", "தகுதி",
+        "cert", "document", "சான்றிதழ்", "டிசி", "marksheet",
+        "apply", "form", "விண்ணப்ப", "பதிவு",
+        "status", "track", "நிலை", "டிராக்",
+        "dsa", "queue", "stack", "sort", "வரிசை", "அடுக்கு",
+        "reject", "நிராகரி",
+        "phone", "mobile", "helpdesk", "contact", "தொலைபேசி", "எண்"
+    ])
+
+    if any(w in lower_text for w in ["hi", "hello", "hey", "வணக்கம்", "vanakkam", "help", "who are you", "யாரு"]) and not has_domain_query:
+        if is_tamil:
+            return {
+                "reply": "வணக்கம்! நான் **ABC FRIEND** (ஏபிசி நண்பன்) — ஏபிசி கலை மற்றும் அறிவியல் கல்லூரியின் அதிகாரப்பூர்வ சேர்க்கை AI வழிகாட்டி.\n\nகல்லூரி கட்டண விவரங்கள், கட்-ஆஃப் மதிப்பெண்கள், தேவையான சான்றிதழ்கள், விண்ணப்பிக்கும் முறை அல்லது உங்கள் விண்ணப்ப நிலையை அறிய என்னிடம் கேளுங்கள்!\n\nநேரடி உதவிக்கு: **+91 9342311026**.",
+                "lang": "ta",
+                "suggestions": ["கட்டண விவரங்கள்", "கட்-ஆஃப் மதிப்பெண்கள்", "தேவையான சான்றிதழ்கள்", "விண்ணப்ப நிலை அறிதல்", "உதவி மையம் எண்"]
+            }
+        else:
+            return {
+                "reply": "Hello! I am **ABC FRIEND** — your official AI admissions guide for ABC College of Arts and Science.\n\nI can help you with:\n- 💰 **Course Tuition Fee Structure** (Aided & SFS)\n- 🎯 **Department Cutoff Marks**\n- 📄 **Mandatory Verification Certificates**\n- 📝 **6-Subject Application & Percentage Calculation**\n- 🔍 **Tracking Your Application Status**\n- ⚡ **DSA Concepts (Queue, Stack, Selection Sort)**\n\nAdmissions Helpline: **+91 9342311026**\nHow can I help you today?",
+                "lang": "en",
+                "suggestions": ["Course Fees Structure", "Cutoff Marks", "Required Certificates", "How to Apply?", "Helpline Contact"]
+            }
+
+    # FEES GENERAL
+    if any(w in lower_text for w in ["fee", "fees", "cost", "கட்டணம்", "கட்டண", "பீஸ்", "விலை", "துறை கட்டணம்", "tuition"]):
+        if is_tamil:
+            return {
+                "reply": "💰 **ஏபிசி கல்லூரியின் கட்டண அமைப்பு (2026-2027):**\n\n"
+                         "🏛️ **அரசு உதவிபெறும் பிரிவுகள் (Aided - Day Shift):**\n"
+                         "- **B.A கலைப்பிரிவுகள்:** ₹4,650 – ₹5,850 / பருவம் (B.A தமிழ்: ₹4,850)\n"
+                         "- **B.Sc அறிவியல்:** ₹6,250 – ₹8,250 / பருவம் (B.Sc கணினி அறிவியல்: ₹11,500)\n"
+                         "- **B.Com General (Aided):** ₹6,950 / பருவம்\n\n"
+                         "🎓 **சுயநிதி பிரிவுகள் (Self-Financed Stream - SFS Evening Shift):**\n"
+                         "- **வணிகவியல் (B.Com, BBA):** ₹32,000 – ₹36,000 / பருவம்\n"
+                         "- **B.Sc Computer Science / Data Science:** ₹34,500 – ₹37,500 / பருவம்\n"
+                         "- **B.C.A / Visual Communication:** ₹36,500 – ₹38,000 / பருவம்\n\n"
+                         "விண்ணப்ப படிவத்திற்கு மேலே உள்ள **கட்டண அட்டவணையில் (Fee Structure Table)** அனைத்து 33 துறைகளின் கட்டணங்களையும் நேரடியாக பார்க்கலாம்!\n\n"
+                         "கட்டண சலுகைகள் மற்றும் உதவிக்கு: **+91 9342311026**.",
+                "lang": "ta",
+                "suggestions": ["B.Sc Computer Science கட்டணம்", "B.Com கட்டணம்", "கட்-ஆஃப் மதிப்பெண்கள்", "விண்ணப்ப முறை"]
+            }
+        else:
+            return {
+                "reply": "💰 **ABC College Fee Structure Overview (2026-2027):**\n\n"
+                         "🏛️ **Government Aided Programs (Day Shift):**\n"
+                         "- **B.A Arts & Humanities:** ₹4,650 – ₹5,850 / semester\n"
+                         "- **B.Sc Sciences:** ₹6,250 – ₹8,250 / semester (B.Sc CS Aided: ₹11,500)\n"
+                         "- **B.Com General (Aided):** ₹6,950 / semester\n\n"
+                         "🎓 **Self-Financed Stream - SFS (Evening Shift):**\n"
+                         "- **Commerce & Management (B.Com, BBA):** ₹32,000 – ₹36,000 / semester\n"
+                         "- **Computer Science / Data Science:** ₹34,500 – ₹37,500 / semester\n"
+                         "- **BCA & Visual Communication:** ₹36,500 – ₹38,000 / semester\n\n"
+                         "👉 You can also explore the complete interactive Fee Structure Table located right above the admission form!\n\n"
+                         "For fee installment assistance or queries, call Helpline: **+91 9342311026**.",
+                "lang": "en",
+                "suggestions": ["B.Sc Computer Science Fee", "B.Com General Fee", "Cutoff Marks", "Required Certificates"]
+            }
+
+    # CUTOFF
+    if any(w in lower_text for w in ["cutoff", "cut off", "marks needed", "minimum", "eligibility", "கட்-ஆஃப்", "மதிப்பெண்", "தகுதி"]):
+        if is_tamil:
+            return {
+                "reply": "🎯 **முக்கிய துறைகளின் கட்-ஆஃப் மதிப்பெண்கள் (12-ஆம் வகுப்பு):**\n\n"
+                         "- **B.Com General (Aided):** 86.0% | **SFS:** 80.0%\n"
+                         "- **B.Sc Computer Science (Aided):** 85.0% | **SFS:** 78.0%\n"
+                         "- **B.Sc Data Science:** 83.0%\n"
+                         "- **B.C.A Computer Applications:** 80.0%\n"
+                         "- **B.A English (Aided):** 78.0% | **B.A தமிழ்:** 60.0%\n"
+                         "- **B.Sc கணிதம் (Aided):** 75.0% | **இயற்பியல் (Aided):** 76.0%\n\n"
+                         "கல்லூரி **Selection Sort மெரிட் அல்காரிதம்** மூலம் அதிக மதிப்பெண் பெற்ற மாணவர்களுக்கு முன்னுரிமை அளித்து சேர்க்கை வழங்குகிறது!",
+                "lang": "ta",
+                "suggestions": ["கட்டண விவரங்கள்", "6 பாட மதிப்பெண்கள் கணக்கீடு", "விண்ணப்ப நிலை"]
+            }
+        else:
+            return {
+                "reply": "🎯 **Key Department Cutoff Marks (HSC +2 Aggregate):**\n\n"
+                         "- **B.Com General:** 86.0% (Aided) | 80.0% (SFS)\n"
+                         "- **B.Sc Computer Science:** 85.0% (Aided) | 78.0% (SFS)\n"
+                         "- **B.Sc Data Science:** 83.0%\n"
+                         "- **B.C.A Computer Applications:** 80.0%\n"
+                         "- **B.Com Accounting & Finance:** 82.0%\n"
+                         "- **B.Sc Mathematics:** 75.0% (Aided)\n"
+                         "- **B.A English:** 78.0% (Aided) | **B.A Tamil:** 60.0%\n\n"
+                         "Admission is processed via automated **Selection Sort Merit Ranking** based on 12th marks.",
+                "lang": "en",
+                "suggestions": ["Fees for B.Sc CS", "What Certificates Needed?", "How to Apply?"]
+            }
+
+    # CERTIFICATES
+    if any(w in lower_text for w in ["certificate", "cert", "document", "documents", "tc", "marksheet", "சான்றிதழ்", "சான்றிதழ்கள்", "ஆவணம்", "டிசி"]):
+        if is_tamil:
+            return {
+                "reply": "📄 **சேர்க்கை சரிபார்ப்புக்கு தேவையான 4 முக்கிய சான்றிதழ்கள்:**\n\n"
+                         "1. **10-ஆம் வகுப்பு மதிப்பெண் சான்றிதழ் (SSLC Marksheet)** — பிறந்த தேதி மற்றும் அடிப்படைக் கல்விச் சான்று.\n"
+                         "2. **12-ஆம் வகுப்பு (+2) மதிப்பெண் சான்றிதழ் (HSC Marksheet)** — 6 பாட மதிப்பெண் சரிபார்ப்பிற்கு.\n"
+                         "3. **மாற்றுச் சான்றிதழ் மற்றும் நன்னடத்தைச் சான்றிதழ் (TC & Conduct Certificate)** — பள்ளி தலைமை ஆசிரியரால் வழங்கப்பட்டது.\n"
+                         "4. **சாதிச் சான்றிதழ் (Community Certificate)** — இடஒதுக்கீடு மற்றும் அரசு கல்வி உதவித்தொகைக்கு.\n\n"
+                         "விண்ணப்ப படிவத்தில் இந்த சான்றிதழ்களை டிக் செய்து சமர்ப்பிக்கலாம். சேர்க்கை அலுவலர் நேரில் அல்லது ஆன்லைனில் சரிபார்த்து 'Verified' முத்திரை வழங்குவார்.",
+                "lang": "ta",
+                "suggestions": ["விண்ணப்பிக்கும் முறை", "நிராகரிப்பு காரணங்கள்", "உதவி மையம் எண்"]
+            }
+        else:
+            return {
+                "reply": "📄 **Mandatory Certificates Required for Verification:**\n\n"
+                         "1. **10th Standard (SSLC) Marksheet** — Proof of Date of Birth & secondary completion.\n"
+                         "2. **12th Standard (HSC +2) Marksheet** — For verifying all 6 subject marks.\n"
+                         "3. **Transfer Certificate (TC) & Conduct Certificate** — Issued by school principal.\n"
+                         "4. **Community Certificate (BC/MBC/SC/ST)** — For quota eligibility & government concessions.\n\n"
+                         "Upload/tick these documents during form submission. The verification desk checks them before final seat allocation.",
+                "lang": "en",
+                "suggestions": ["How to Apply?", "Course Fees Structure", "Helpline Number"]
+            }
+
+    # HOW TO APPLY & 6 MARKS
+    if any(w in lower_text for w in ["apply", "application", "how to", "marks", "6 marks", "percentage", "விண்ணப்பிக்க", "விண்ணப்பம்", "பதிவு", "முறை"]):
+        if is_tamil:
+            return {
+                "reply": "📝 **விண்ணப்பிக்கும் எளிய வழிமுறைகள்:**\n\n"
+                         "1. உங்கள் பெயர், மின்னஞ்சல், கைபேசி எண் உள்ளிடவும்.\n"
+                         "2. விரும்பும் பிரிவு (Aided அல்லது SFS) மற்றும் பாடப்பிரிவை தேர்ந்தெடுக்கவும்.\n"
+                         "3. **6 பாடங்களின் மதிப்பெண்களை (ஒவ்வொன்றும் 100-க்கு) உள்ளிடவும்**:\n"
+                         "   - மொழி (Language), ஆங்கிலம் (English), 3 முக்கிய பாடங்கள், 1 விருப்பப் பாடம்.\n"
+                         "   - தளம் தானாகவே மொத்த மதிப்பெண் (600-க்கு) மற்றும் சதவீதத்தை (Percentage) கணக்கிடும்.\n"
+                         "4. சான்றிதழ்களை டிக் செய்து **'Submit Application'** அழுத்தவும்.\n"
+                         "5. உங்களுக்கு **ABC26-AID-CS-1001** போன்ற பிரத்யேக எண் வழங்கப்படும். உடனடியாக துறைசார் FIFO காத்திருப்பு வரிசையில் சேர்க்கப்படுவீர்கள்!",
+                "lang": "ta",
+                "suggestions": ["கட்டண விவரங்கள்", "கட்-ஆஃப் மதிப்பெண்கள்", "விண்ணப்ப நிலை அறிதல்"]
+            }
+        else:
+            return {
+                "reply": "📝 **Step-by-Step Application Guide:**\n\n"
+                         "1. Enter Candidate Name, Gender, Email, and Mobile Number.\n"
+                         "2. Select Shift Stream (Aided / SFS) and your desired Degree Program.\n"
+                         "3. **Enter marks for all 6 HSC subjects (out of 100 each)**:\n"
+                         "   - Language, English, Core 1, Core 2, Core 3, and Elective.\n"
+                         "   - The portal dynamically calculates your **Total (/600)** and **Percentage** live.\n"
+                         "4. Confirm document uploads (10th, 12th, TC, Community) and click Submit.\n"
+                         "5. You receive an Alphanumeric Application ID (e.g. `ABC26-AID-CS-1001`) and enter the department's FIFO waitlist instantly!",
+                "lang": "en",
+                "suggestions": ["Check Status", "Tuition Fees", "Required Certificates"]
+            }
+
+    # APPLICATION STATUS
+    if any(w in lower_text for w in ["status", "track", "app no", "application number", "நிலை", "டிராக்", "முடிவு"]):
+        if is_tamil:
+            return {
+                "reply": "🔍 **விண்ணப்ப நிலையை அறியும் முறை:**\n\n"
+                         "முகப்பு பக்கத்தில் வலதுபுறம் உள்ள **'Check Application Status'** பெட்டியில் உங்கள் விண்ணப்ப எண்ணை (எ.கா. `ABC26-AID-CS-1001` அல்லது டோக்கன் எண்) உள்ளிட்டு 'Track Status' அழுத்தவும்.\n\n"
+                         "அங்கு உங்கள்:\n"
+                         "- துறைசார் வரிசை நிலை (FIFO Queue Position)\n"
+                         "- சான்றிதழ் சரிபார்ப்பு நிலை (Verified / Pending)\n"
+                         "- உறுதிசெய்யப்பட்ட இருக்கை எண் (Seat Number) ஆகியவற்றை உடனடியாக பார்க்கலாம்!",
+                "lang": "ta",
+                "suggestions": ["விண்ணப்பிப்பது எப்படி?", "கட்டண விவரங்கள்", "உதவி மையம்"]
+            }
+        else:
+            return {
+                "reply": "🔍 **Tracking Your Application Status:**\n\n"
+                         "In the **'Check Application Status'** box on the portal, enter your unique alphanumeric Application Number (e.g. `ABC26-AID-CS-1001`) and click **Track Status**.\n\n"
+                         "You will see live:\n"
+                         "- Real-time FIFO Department Queue Position\n"
+                         "- 5-Stage Visual Progress Stepper\n"
+                         "- Certificate Verification Status (Verified / Flagged / Pending)\n"
+                         "- Confirmed Seat Allotment details.",
+                "lang": "en",
+                "suggestions": ["Course Fees", "What Certificates Needed?", "Helpline Contact"]
+            }
+
+    # DSA QUESTIONS
+    if any(w in lower_text for w in ["dsa", "queue", "stack", "sort", "selection sort", "fifo", "lifo", "வரிசை", "அடுக்கு"]):
+        if is_tamil:
+            return {
+                "reply": "⚡ **இந்த சேர்க்கை தளத்தில் பயன்படுத்தப்பட்ட DSA அமைப்புகள்:**\n\n"
+                         "1. **Queue (FIFO - First In, First Out):**\n"
+                         "   - ஒவ்வொரு துறைக்கும் பிரத்யேக காத்திருப்பு வரிசை. முதலில் விண்ணப்பிக்கும் மாணவர் HEAD-ல் இருப்பார்.\n"
+                         "2. **Stack (LIFO - Last In, First Out):**\n"
+                         "   - சேர்க்கை அலுவலரின் தவறான முடிவுகளை பின்வாங்க (Undo / Rollback) உதவும் அடுக்கு.\n"
+                         "3. **Selection Sort:**\n"
+                         "   - 12-ஆம் வகுப்பு மதிப்பெண்கள் அடிப்படையில் தானியங்கி தகுதிப் பட்டியல் (Merit Rank List) தயாரிக்கும் வரிசையாக்க அல்காரிதம்.",
+                "lang": "ta",
+                "suggestions": ["கட்டண விவரங்கள்", "கட்-ஆஃப் மதிப்பெண்கள்", "விண்ணப்ப நிலை"]
+            }
+        else:
+            return {
+                "reply": "⚡ **Data Structures & Algorithms (DSA) Architecture:**\n\n"
+                         "1. **Queue (FIFO - First In, First Out):**\n"
+                         "   - Each of the 33 departments runs an independent FIFO queue. The earliest applicant stays at the HEAD.\n"
+                         "2. **Stack (LIFO - Last In, First Out):**\n"
+                         "   - The admin rollback stack records admissions and rejections for single-click O(1) Undo.\n"
+                         "3. **Selection Sort Algorithm:**\n"
+                         "   - Orders applicants by 12th Marks aggregate to produce official college Merit Rank lists.",
+                "lang": "en",
+                "suggestions": ["How to Apply?", "Course Fees Structure", "Cutoff Marks"]
+            }
+
+    # REJECTIONS
+    if any(w in lower_text for w in ["reject", "rejected", "disqualif", "reason", "நிராகரி", "காரணம்"]):
+        if is_tamil:
+            return {
+                "reply": "🚫 **விண்ணப்ப நிராகரிப்புக்கான 3 முக்கிய காரணங்கள்:**\n\n"
+                         "1. **மதிப்பெண் பற்றாக்குறை (Marks Below Cutoff):** 12-ஆம் வகுப்பு மதிப்பெண் துறையின் குறைந்தபட்ச கட்-ஆஃப்-ஐ விட குறைவாக இருத்தல்.\n"
+                         "2. **சான்றிதழ் நிலுவை (Certificate Pending):** 12-ஆம் வகுப்பு அல்லது மாற்றுச் சான்றிதழ் (TC) சமர்ப்பிக்கப்படாமை.\n"
+                         "3. **கட்டண செலுத்த தவறுதல் (Fees Expired):** ஒதுக்கீட்டு காலக்கெடுவுக்குள் கல்விக்கட்டணம் செலுத்தப்படாமை.\n\n"
+                         "மேல்முறையீடு செய்ய உதவி மையத்தை **9342311026** என்ற எண்ணில் தொடர்பு கொள்ளலாம்.",
+                "lang": "ta",
+                "suggestions": ["உதவி மையம் எண்", "சான்றிதழ்கள் என்ன தேவை?", "கட்டண விவரங்கள்"]
+            }
+        else:
+            return {
+                "reply": "🚫 **Common Disqualification & Rejection Grounds:**\n\n"
+                         "1. **Marks Below Cutoff:** HSC percentage does not meet minimum program cutoff.\n"
+                         "2. **Certificate Pending:** Original Transfer Certificate (TC) or 12th Marksheet not verified.\n"
+                         "3. **Admission Fees Expired:** Prescribed tuition fee voucher deadline passed.\n\n"
+                         "If you wish to submit pending certificates or clear fee discrepancies, contact the helpline at **+91 9342311026**.",
+                "lang": "en",
+                "suggestions": ["Helpline Contact", "Required Certificates", "Course Fees"]
+            }
+
+    # CONTACT / HELPLINE
+    if any(w in lower_text for w in ["contact", "phone", "mobile", "helpdesk", "address", "location", "timing", "தொடர்பு", "தொலைபேசி", "முகவரி", "உதவி"]):
+        if is_tamil:
+            return {
+                "reply": "🏛️ **ஏபிசி கல்லூரி சேர்க்கை உதவி மையம்:**\n\n"
+                         "📞 **தொலைபேசி & உதவி எண்:** **+91 9342311026** / (044) 2239 0675\n"
+                         "💬 **வாட்ஸ்அப் உதவி மையம் (WhatsApp):** **+91 9342311026**\n"
+                         "✉️ **மின்னஞ்சல்:** admissions@abccollege.edu.in\n"
+                         "📍 **முகவரி:** வேளச்சேரி மெயின் ரோடு, கிழக்கு தாம்பரம், சென்னை - 600 059, தமிழ்நாடு.\n"
+                         "🕒 **பணி நேரம்:** திங்கள் முதல் சனி வரை: காலை 09:00 - மாலை 05:00 மணி வரை.",
+                "lang": "ta",
+                "suggestions": ["கட்டண விவரங்கள்", "கட்-ஆஃப் மதிப்பெண்கள்", "விண்ணப்ப முறை"]
+            }
+        else:
+            return {
+                "reply": "🏛️ **ABC College Admission Helpdesk & Contact Info:**\n\n"
+                         "📞 **Admissions Helpline:** **+91 9342311026** / +91 (044) 2239 0675\n"
+                         "💬 **WhatsApp Query Desk:** **+91 9342311026**\n"
+                         "✉️ **Email:** admissions@abccollege.edu.in\n"
+                         "📍 **Campus Location:** Velachery Main Road, East Tambaram, Chennai - 600 059, Tamil Nadu.\n"
+                         "🕒 **Office Hours:** Monday – Saturday: 09:00 AM – 05:00 PM IST.",
+                "lang": "en",
+                "suggestions": ["Course Fees Structure", "Cutoff Marks", "How to Apply?"]
+            }
+
+    # DEFAULT FALLBACK
+    if is_tamil:
+        return {
+            "reply": "உங்கள் கேள்விக்கு நன்றி! நான் ஏபிசி கல்லூரியின் கட்டண விவரங்கள், கட்-ஆஃப் மதிப்பெண்கள், தேவையான சான்றிதழ்கள், விண்ணப்பிக்கும் முறை மற்றும் விண்ணப்ப நிலை போன்ற அனைத்து தகவல்களையும் உடனடியாக வழங்க முடியும். கீழே உள்ள பரிந்துரை பொத்தான்களை பயன்படுத்தி அல்லது உங்கள் கேள்வியை தெளிவாக தட்டச்சு செய்து கேளுங்கள்!",
+            "lang": "ta",
+            "suggestions": ["கட்டண விவரங்கள்", "கட்-ஆஃப் மதிப்பெண்கள்", "தேவையான சான்றிதழ்கள்", "உதவி மையம் எண்"]
+        }
+    else:
+        return {
+            "reply": "Thank you for asking! I can answer questions about course tuition fees, department cutoff marks, required verification documents, the 6-subject application process, or tracking your application.\n\nYou can also click any of the quick suggestions below or type a course name (e.g. 'B.Sc Computer Science fee'):",
+            "lang": "en",
+            "suggestions": ["Course Fees Structure", "Department Cutoffs", "Required Certificates", "Helpline Contact: 9342311026"]
+        }
+
+
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    data = request.get_json(silent=True) or {}
+    message = data.get("message", "").strip()
+    lang = data.get("lang", "auto")
+
+    if not message:
+        return jsonify({
+            "success": False,
+            "error": "Message is required"
+        }), 400
+
+    response_data = generate_abc_friend_reply(message, requested_lang=lang)
+    return jsonify({
+        "success": True,
+        "reply": response_data["reply"],
+        "lang": response_data["lang"],
+        "suggestions": response_data["suggestions"],
+        "time": datetime.now().strftime("%I:%M %p")
+    })
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

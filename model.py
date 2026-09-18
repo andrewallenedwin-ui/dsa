@@ -19,45 +19,45 @@ else:
 # Comprehensive Arts & Sciences Curriculum (Aided and SFS Streams)
 DEFAULT_COURSES = [
     # --- ARTS & HUMANITIES ---
-    {"name": "B.A Tamil", "code": "BA-TAM", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 60.0},
-    {"name": "B.A English", "code": "BA-ENG-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 60, "cutoff": 78.0},
-    {"name": "B.A English (SFS)", "code": "BA-ENG-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 60, "cutoff": 68.0},
-    {"name": "B.A History", "code": "BA-HIS-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 60.0},
-    {"name": "B.A History (SFS)", "code": "BA-HIS-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 50, "cutoff": 55.0},
-    {"name": "B.A Political Science", "code": "BA-POL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 65.0},
-    {"name": "B.A Philosophy", "code": "BA-PHIL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 40, "cutoff": 58.0},
-    {"name": "B.A Journalism", "code": "BA-JOURN", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 50, "cutoff": 72.0},
+    {"name": "B.A Tamil", "code": "BA-TAM", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 60.0, "tuition_fee": 4850},
+    {"name": "B.A English", "code": "BA-ENG-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 60, "cutoff": 78.0, "tuition_fee": 5850},
+    {"name": "B.A English (SFS)", "code": "BA-ENG-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 60, "cutoff": 68.0, "tuition_fee": 19500},
+    {"name": "B.A History", "code": "BA-HIS-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 60.0, "tuition_fee": 4850},
+    {"name": "B.A History (SFS)", "code": "BA-HIS-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 50, "cutoff": 55.0, "tuition_fee": 17500},
+    {"name": "B.A Political Science", "code": "BA-POL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 65.0, "tuition_fee": 5150},
+    {"name": "B.A Philosophy", "code": "BA-PHIL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 40, "cutoff": 58.0, "tuition_fee": 4650},
+    {"name": "B.A Journalism", "code": "BA-JOURN", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 50, "cutoff": 72.0, "tuition_fee": 23500},
 
     # --- SCIENCES ---
-    {"name": "B.Sc Mathematics", "code": "BSC-MAT-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 75.0},
-    {"name": "B.Sc Mathematics (SFS)", "code": "BSC-MAT-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 65.0},
-    {"name": "B.Sc Physics", "code": "BSC-PHY-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 76.0},
-    {"name": "B.Sc Physics (SFS)", "code": "BSC-PHY-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 66.0},
-    {"name": "B.Sc Chemistry", "code": "BSC-CHE-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 74.0},
-    {"name": "B.Sc Chemistry (SFS)", "code": "BSC-CHE-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 65.0},
-    {"name": "B.Sc Botany", "code": "BSC-BOT", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 62.0},
-    {"name": "B.Sc Zoology", "code": "BSC-ZOO", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 62.0},
-    {"name": "B.Sc Statistics", "code": "BSC-STAT", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 70.0},
-    {"name": "B.Sc Microbiology", "code": "BSC-MIC", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 74.0},
-    {"name": "B.Sc Computer Science", "code": "BSC-CS-AID", "category": "Sciences", "stream": "Aided", "total_seats": 60, "cutoff": 85.0},
-    {"name": "B.Sc Computer Science (SFS)", "code": "BSC-CS-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 60, "cutoff": 78.0},
-    {"name": "B.Sc Geography", "code": "BSC-GEO", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 60.0},
-    {"name": "B.Sc Psychology", "code": "BSC-PSY", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 80.0},
+    {"name": "B.Sc Mathematics", "code": "BSC-MAT-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 75.0, "tuition_fee": 6250},
+    {"name": "B.Sc Mathematics (SFS)", "code": "BSC-MAT-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 65.0, "tuition_fee": 21500},
+    {"name": "B.Sc Physics", "code": "BSC-PHY-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 76.0, "tuition_fee": 7850},
+    {"name": "B.Sc Physics (SFS)", "code": "BSC-PHY-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 66.0, "tuition_fee": 24000},
+    {"name": "B.Sc Chemistry", "code": "BSC-CHE-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 74.0, "tuition_fee": 8250},
+    {"name": "B.Sc Chemistry (SFS)", "code": "BSC-CHE-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 65.0, "tuition_fee": 25500},
+    {"name": "B.Sc Botany", "code": "BSC-BOT", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 62.0, "tuition_fee": 7450},
+    {"name": "B.Sc Zoology", "code": "BSC-ZOO", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 62.0, "tuition_fee": 7450},
+    {"name": "B.Sc Statistics", "code": "BSC-STAT", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 70.0, "tuition_fee": 6500},
+    {"name": "B.Sc Microbiology", "code": "BSC-MIC", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 74.0, "tuition_fee": 28000},
+    {"name": "B.Sc Computer Science", "code": "BSC-CS-AID", "category": "Sciences", "stream": "Aided", "total_seats": 60, "cutoff": 85.0, "tuition_fee": 11500},
+    {"name": "B.Sc Computer Science (SFS)", "code": "BSC-CS-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 60, "cutoff": 78.0, "tuition_fee": 34500},
+    {"name": "B.Sc Geography", "code": "BSC-GEO", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 60.0, "tuition_fee": 6800},
+    {"name": "B.Sc Psychology", "code": "BSC-PSY", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 80.0, "tuition_fee": 26000},
 
     # --- COMMERCE & MANAGEMENT ---
-    {"name": "B.Com General", "code": "BCOM-AID", "category": "Commerce & Management", "stream": "Aided", "total_seats": 70, "cutoff": 86.0},
-    {"name": "B.Com General (SFS)", "code": "BCOM-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 70, "cutoff": 80.0},
-    {"name": "B.Com Accounting and Finance", "code": "BCOM-AF", "category": "Commerce & Management", "stream": "SFS", "total_seats": 70, "cutoff": 82.0},
-    {"name": "B.Com Professional Accounting", "code": "BCOM-PA", "category": "Commerce & Management", "stream": "SFS", "total_seats": 60, "cutoff": 84.0},
-    {"name": "BBA Business Administration", "code": "BBA-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 60, "cutoff": 78.0},
+    {"name": "B.Com General", "code": "BCOM-AID", "category": "Commerce & Management", "stream": "Aided", "total_seats": 70, "cutoff": 86.0, "tuition_fee": 6950},
+    {"name": "B.Com General (SFS)", "code": "BCOM-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 70, "cutoff": 80.0, "tuition_fee": 32000},
+    {"name": "B.Com Accounting and Finance", "code": "BCOM-AF", "category": "Commerce & Management", "stream": "SFS", "total_seats": 70, "cutoff": 82.0, "tuition_fee": 34000},
+    {"name": "B.Com Professional Accounting", "code": "BCOM-PA", "category": "Commerce & Management", "stream": "SFS", "total_seats": 60, "cutoff": 84.0, "tuition_fee": 36000},
+    {"name": "BBA Business Administration", "code": "BBA-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 60, "cutoff": 78.0, "tuition_fee": 35000},
 
     # --- PROFESSIONAL & SPECIAL STREAMS ---
-    {"name": "B.S.W Social Work", "code": "BSW-AID", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 40, "cutoff": 60.0},
-    {"name": "B.S.W Social Work (SFS)", "code": "BSW-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 40, "cutoff": 58.0},
-    {"name": "B.C.A Computer Applications", "code": "BCA-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 60, "cutoff": 80.0},
-    {"name": "B.Sc Visual Communication", "code": "BSC-VISCOM", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 50, "cutoff": 76.0},
-    {"name": "B.Sc Data Science", "code": "BSC-DS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 50, "cutoff": 83.0},
-    {"name": "B.Sc Physical Education", "code": "BSC-PED", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 40, "cutoff": 55.0},
+    {"name": "B.S.W Social Work", "code": "BSW-AID", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 40, "cutoff": 60.0, "tuition_fee": 6500},
+    {"name": "B.S.W Social Work (SFS)", "code": "BSW-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 40, "cutoff": 58.0, "tuition_fee": 21000},
+    {"name": "B.C.A Computer Applications", "code": "BCA-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 60, "cutoff": 80.0, "tuition_fee": 36500},
+    {"name": "B.Sc Visual Communication", "code": "BSC-VISCOM", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 50, "cutoff": 76.0, "tuition_fee": 38000},
+    {"name": "B.Sc Data Science", "code": "BSC-DS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 50, "cutoff": 83.0, "tuition_fee": 37500},
+    {"name": "B.Sc Physical Education", "code": "BSC-PED", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 40, "cutoff": 55.0, "tuition_fee": 5800},
 ]
 
 
@@ -166,7 +166,8 @@ def init_db():
             category TEXT NOT NULL,
             stream TEXT NOT NULL,
             total_seats INTEGER NOT NULL,
-            cutoff REAL NOT NULL
+            cutoff REAL NOT NULL,
+            tuition_fee INTEGER DEFAULT 0
         )
     """)
 
@@ -178,15 +179,25 @@ def init_db():
     """)
 
     # Check if courses table needs migration or seeding
+    cursor.execute("PRAGMA table_info(courses)")
+    c_cols = {col["name"] for col in cursor.fetchall()}
+    if "tuition_fee" not in c_cols:
+        cursor.execute("ALTER TABLE courses ADD COLUMN tuition_fee INTEGER DEFAULT 0")
+
     cursor.execute("SELECT COUNT(*) as cnt FROM courses")
     existing_count = cursor.fetchone()["cnt"]
     if existing_count < len(DEFAULT_COURSES):
         cursor.execute("DELETE FROM courses")
         for c in DEFAULT_COURSES:
             cursor.execute("""
-                INSERT OR REPLACE INTO courses (name, code, category, stream, total_seats, cutoff)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (c["name"], c["code"], c["category"], c["stream"], c["total_seats"], c["cutoff"]))
+                INSERT OR REPLACE INTO courses (name, code, category, stream, total_seats, cutoff, tuition_fee)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (c["name"], c["code"], c["category"], c["stream"], c["total_seats"], c["cutoff"], c.get("tuition_fee", 0)))
+    else:
+        for c in DEFAULT_COURSES:
+            cursor.execute("""
+                UPDATE courses SET tuition_fee = ?, cutoff = ?, total_seats = ? WHERE code = ?
+            """, (c.get("tuition_fee", 0), c["cutoff"], c["total_seats"], c["code"]))
 
     total_course_seats = sum(c["total_seats"] for c in DEFAULT_COURSES)
     cursor.execute("""
@@ -646,6 +657,7 @@ def get_course_stats():
             c.stream,
             c.total_seats,
             c.cutoff,
+            c.tuition_fee,
             COUNT(CASE WHEN s.status = 'admitted' AND a.status = 'active' THEN 1 END) as filled_seats
         FROM courses c
         LEFT JOIN students s ON s.department = c.name
@@ -668,6 +680,7 @@ def get_course_stats():
             "stream": r["stream"],
             "total_seats": total,
             "cutoff": r["cutoff"],
+            "tuition_fee": r["tuition_fee"] or 0,
             "filled_seats": filled,
             "available_seats": max(0, total - filled),
             "fill_percentage": round((filled / total) * 100, 1) if total > 0 else 0

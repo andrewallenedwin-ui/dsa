@@ -218,5 +218,61 @@ class TestDSAProject(unittest.TestCase):
         status_res2 = self.app.get(f'/api/student/{s_id}')
         self.assertEqual(status_res2.get_json()['student']['status'], 'pending')
 
+    def test_course_tuition_fees(self):
+        res = self.app.get('/api/courses')
+        self.assertEqual(res.status_code, 200)
+        courses = res.get_json()['courses']
+        for c in courses:
+            self.assertIn('tuition_fee', c)
+            self.assertGreater(c['tuition_fee'], 0)
+        
+        # Check Aided fee vs SFS fee realistic ranges
+        aided_fees = [c['tuition_fee'] for c in courses if c['stream'] == 'Aided']
+        sfs_fees = [c['tuition_fee'] for c in courses if c['stream'] == 'SFS']
+        self.assertGreater(min(sfs_fees), max(aided_fees))
+
+    def test_abc_friend_chat_bilingual(self):
+        # 1. English Fee Query
+        res1 = self.app.post('/api/chat', data=json.dumps({
+            'message': 'What is the fee for B.Sc Computer Science?',
+            'lang': 'en'
+        }), content_type='application/json')
+        self.assertEqual(res1.status_code, 200)
+        d1 = res1.get_json()
+        self.assertTrue(d1['success'])
+        self.assertIn('B.Sc Computer Science', d1['reply'])
+        self.assertIn('₹', d1['reply'])
+
+        # 2. English Contact / Helpline Query
+        res2 = self.app.post('/api/chat', data=json.dumps({
+            'message': 'admission phone number',
+            'lang': 'en'
+        }), content_type='application/json')
+        self.assertEqual(res2.status_code, 200)
+        d2 = res2.get_json()
+        self.assertIn('9342311026', d2['reply'])
+
+        # 3. English DSA Query
+        res3 = self.app.post('/api/chat', data=json.dumps({
+            'message': 'how does the queue and selection sort work in admission?',
+            'lang': 'en'
+        }), content_type='application/json')
+        self.assertEqual(res3.status_code, 200)
+        d3 = res3.get_json()
+        self.assertIn('Queue', d3['reply'])
+        self.assertIn('Selection Sort', d3['reply'])
+
+        # 4. Tamil Greeting & Query
+        res4 = self.app.post('/api/chat', data=json.dumps({
+            'message': 'வணக்கம், சேர்க்கை கட்டணம் என்ன?',
+            'lang': 'auto'
+        }), content_type='application/json')
+        self.assertEqual(res4.status_code, 200)
+        d4 = res4.get_json()
+        self.assertTrue(d4['success'])
+        self.assertEqual(d4['lang'], 'ta')
+        self.assertIn('9342311026', d4['reply'])
+        self.assertIn('ஏபிசி', d4['reply'])
+
 if __name__ == '__main__':
     unittest.main()
