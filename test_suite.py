@@ -157,5 +157,66 @@ class TestDSAProject(unittest.TestCase):
         all_s = models.get_all_students()
         self.assertGreaterEqual(len(all_s), 1000)
 
+    def test_rejection_tracking_and_reasons(self):
+        res = self.app.get('/api/dashboard')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertIn('total_rejected', data)
+        self.assertGreater(data['total_rejected'], 0)
+        self.assertIn('rejection_marks_count', data)
+        self.assertIn('rejection_cert_count', data)
+        self.assertIn('rejection_fees_count', data)
+        self.assertGreater(data['rejection_marks_count'], 0)
+        self.assertGreater(data['rejection_cert_count'], 0)
+        self.assertGreater(data['rejection_fees_count'], 0)
+
+        # Test /api/rejections endpoint
+        rej_res = self.app.get('/api/rejections')
+        self.assertEqual(rej_res.status_code, 200)
+        rej_data = rej_res.get_json()
+        self.assertTrue(rej_data['success'])
+        self.assertEqual(rej_data['total_rejected'], data['total_rejected'])
+        self.assertGreater(len(rej_data['students']), 0)
+        first_rej = rej_data['students'][0]
+        self.assertTrue(len(first_rej.get('rejection_reason', '')) > 0)
+
+    def test_reject_student_with_reason_and_undo(self):
+        # 1. Submit application
+        import uuid
+        payload = {
+            'name': 'Test Rejection Applicant',
+            'email': f'test.reject.{uuid.uuid4().hex[:8]}@example.com',
+            'phone': '9342311026',
+            'department': 'B.Sc Mathematics',
+            'stream': 'Aided',
+            'marks': 55.0,
+            'gender': 'Female'
+        }
+        res = self.app.post('/api/apply', data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(res.status_code, 200)
+        s_id = res.get_json()['student_id']
+
+        # 2. Reject with reason
+        reason_text = "Marks Below Cutoff: HSC aggregate did not meet cutoff of 75.0%"
+        rej_res = self.app.post(f'/api/reject/{s_id}', data=json.dumps({'reason': reason_text}), content_type='application/json')
+        self.assertEqual(rej_res.status_code, 200)
+        self.assertTrue(rej_res.get_json()['success'])
+        self.assertEqual(rej_res.get_json()['rejection_reason'], reason_text)
+
+        # 3. Check status reflects rejection and reason
+        status_res = self.app.get(f'/api/student/{s_id}')
+        self.assertEqual(status_res.status_code, 200)
+        self.assertEqual(status_res.get_json()['student']['status'], 'rejected')
+        self.assertEqual(status_res.get_json()['student']['rejection_reason'], reason_text)
+
+        # 4. Undo rejection via Stack LIFO
+        undo_res = self.app.post('/api/undo')
+        self.assertEqual(undo_res.status_code, 200)
+        self.assertTrue(undo_res.get_json()['success'])
+
+        # 5. Check restored to pending
+        status_res2 = self.app.get(f'/api/student/{s_id}')
+        self.assertEqual(status_res2.get_json()['student']['status'], 'pending')
+
 if __name__ == '__main__':
     unittest.main()

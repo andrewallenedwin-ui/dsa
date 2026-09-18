@@ -75,6 +75,12 @@
                 <span id="stackSize" class="stat-number">0</span>
                 <span class="stat-sub">Reversible Actions (LIFO)</span>
             </div>
+
+            <div class="stat-box rejected-box" onclick="scrollToRejections()" style="cursor: pointer;" title="Click to view disqualified applicants and rejection reasons breakdown">
+                <span class="stat-label">Rejected Applicants</span>
+                <span id="totalRejected" class="stat-number">66</span>
+                <span class="stat-sub">Marks / Cert / Fee Issues</span>
+            </div>
         </section>
 
         <!-- MASTER BOARD: Real-Time Seat Monitoring -->
@@ -142,9 +148,14 @@
                 </div>
 
                 <div class="queue-control-bar">
-                    <button class="btn btn-success btn-lg" onclick="admitNextStudent()">
-                        <span id="admitBtnText">Admit Next in Queue &bull; dequeue()</span>
-                    </button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-success btn-lg" onclick="admitNextStudent()">
+                            <span id="admitBtnText">Admit Next in Queue &bull; dequeue()</span>
+                        </button>
+                        <button class="btn btn-outline-danger btn-lg" onclick="promptRejectHead()" title="Disqualify candidate at Head with reason">
+                            <span>Reject Head Candidate</span>
+                        </button>
+                    </div>
                     <span class="method-call" id="activeQueueStats">Queue: Global FIFO</span>
                 </div>
 
@@ -355,6 +366,87 @@
             </div>
         </section>
 
+        <!-- REJECTED APPLICATIONS & DISQUALIFICATION REASONS DESK -->
+        <section id="rejectionSection" class="card wide-card rejection-desk-card">
+            <div class="card-header">
+                <div class="card-icon" style="background: #fee2e2; color: #dc2626;">🚫</div>
+                <div>
+                    <h2>Rejected Applications & Disqualification Reasons Desk</h2>
+                    <p class="small-text">
+                        Audited log of disqualified applicants categorized by HSC Cutoff Marks, Pending Certificates, and Unpaid Admission Fees.
+                    </p>
+                </div>
+                <div class="live-clock" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">
+                    Total Disqualified: <strong id="rejectionCardCount">66</strong>
+                </div>
+            </div>
+
+            <!-- Categorized Reason Breakdown Cards -->
+            <div class="rejection-summary-ribbon">
+                <div class="rej-stat-pill pill-marks">
+                    <span class="pill-icon">📉</span>
+                    <div>
+                        <div class="pill-num" id="rejMarksCount">0</div>
+                        <div class="pill-label">Marks Below Cutoff</div>
+                    </div>
+                </div>
+                <div class="rej-stat-pill pill-cert">
+                    <span class="pill-icon">📄</span>
+                    <div>
+                        <div class="pill-num" id="rejCertCount">0</div>
+                        <div class="pill-label">Certificate Pending / Issue</div>
+                    </div>
+                </div>
+                <div class="rej-stat-pill pill-fees">
+                    <span class="pill-icon">💳</span>
+                    <div>
+                        <div class="pill-num" id="rejFeesCount">0</div>
+                        <div class="pill-label">Admission Fees Expired</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rejection Search & Category Filter Bar -->
+            <div class="table-filter-bar">
+                <div class="filter-item search-item">
+                    <input type="text" id="rejSearchInput" placeholder="Search by name, app no, department..." oninput="filterRejectionTable()">
+                </div>
+                <div class="filter-item">
+                    <label for="rejCategoryFilter">Filter by Reason:</label>
+                    <select id="rejCategoryFilter" onchange="filterRejectionTable()">
+                        <option value="All">All Disqualification Reasons</option>
+                        <option value="Marks Below Cutoff">Marks Below Cutoff</option>
+                        <option value="Certificate Pending / Issue">Certificate Pending / Issue</option>
+                        <option value="Admission Fee Issue">Admission Fee Issue</option>
+                    </select>
+                </div>
+                <div class="filter-item count-item">
+                    <span id="rejFilteredCountText" class="badge-count" style="background: #fee2e2; color: #991b1b;">Showing 66 rejected applicants</span>
+                </div>
+            </div>
+
+            <div class="table-container max-h-table">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>App No</th>
+                            <th>Candidate Name</th>
+                            <th>Program & Stream</th>
+                            <th>HSC Marks</th>
+                            <th>Disqualification Category</th>
+                            <th>Detailed Reason for Rejection</th>
+                            <th>Admin Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rejectionTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center">Loading rejected applicants...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- Certificate Verification Desk Modal -->
         <div id="certModal" class="modal-backdrop hidden">
             <div class="modal-card">
@@ -395,8 +487,8 @@
 
                 <div class="contact-col">
                     <h4>Direct Inquiries & Helplines</h4>
-                    <p>📞 <strong>Admission Office:</strong> +91 (044) 2239 0675 / +91 (044) 2239 6772</p>
-                    <p>💬 <strong>WhatsApp Query Desk:</strong> +91 98401 23456</p>
+                    <p>📞 <strong>Admission Office:</strong> +91 9342311026 / +91 (044) 2239 0675</p>
+                    <p>💬 <strong>WhatsApp Query Desk:</strong> +91 9342311026</p>
                     <p>✉️ <strong>Admission Inquiries:</strong> <a href="mailto:admissions@abccollege.edu.in">admissions@abccollege.edu.in</a></p>
                     <p>🛡️ <strong>Student Grievance Cell:</strong> <a href="mailto:grievance@abccollege.edu.in">grievance@abccollege.edu.in</a></p>
                 </div>
@@ -417,6 +509,7 @@
         let allStudentsList = [];
         let currentMasterStream = 'All';
         let currentActiveQueueCourse = 'All';
+        let allRejectedStudents = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             refreshAll();
@@ -447,6 +540,24 @@
                 if (document.getElementById("verifiedCerts")) {
                     document.getElementById("verifiedCerts").textContent = data.total_verified || 0;
                 }
+                if (document.getElementById("totalRejected")) {
+                    document.getElementById("totalRejected").textContent = data.total_rejected || 0;
+                }
+                if (document.getElementById("rejectionCardCount")) {
+                    document.getElementById("rejectionCardCount").textContent = data.total_rejected || 0;
+                }
+                if (document.getElementById("rejMarksCount")) {
+                    document.getElementById("rejMarksCount").textContent = data.rejection_marks_count || 0;
+                }
+                if (document.getElementById("rejCertCount")) {
+                    document.getElementById("rejCertCount").textContent = data.rejection_cert_count || 0;
+                }
+                if (document.getElementById("rejFeesCount")) {
+                    document.getElementById("rejFeesCount").textContent = data.rejection_fees_count || 0;
+                }
+
+                allRejectedStudents = data.rejected_students || [];
+                filterRejectionTable();
 
                 allAdminCourses = data.courses;
                 populateAdminSortCourses();
@@ -888,21 +999,153 @@
             }
         }
 
-        async function rejectStudent(studentId) {
-            if (!confirm(`Are you sure you want to reject Application #${studentId}? This action can be undone via Stack pop().`)) return;
+        async function rejectStudent(studentId, defaultReason = "") {
+            let reason = defaultReason;
+            if (!reason) {
+                const choice = prompt(
+                    `Select Disqualification / Rejection Reason for Application #${studentId}:\n\n` +
+                    `1. Marks Below Cutoff (HSC percentage below department cutoff eligibility)\n` +
+                    `2. Certificate Pending (Mandatory 12th Marksheet or TC not submitted)\n` +
+                    `3. Admission Fees Issue (First semester tuition fees remittance deadline expired)\n\n` +
+                    `Enter 1, 2, 3 or type a custom reason:`,
+                    "1"
+                );
+                if (choice === null) return;
+                if (choice === "1") {
+                    reason = "Marks Below Cutoff: HSC aggregate did not meet minimum program cutoff eligibility";
+                } else if (choice === "2") {
+                    reason = "Certificate Pending: Original Transfer Certificate (TC) & 12th Marksheet verification unfulfilled";
+                } else if (choice === "3") {
+                    reason = "Admission Fees Issue: Prescribed first semester tuition fee remittance deadline expired";
+                } else {
+                    reason = choice.trim() || "Disqualified: Eligibility cutoff or document verification requirements not fulfilled";
+                }
+            }
 
             try {
-                const res = await fetch(`/api/reject/${studentId}`, { method: "POST" });
+                const res = await fetch(`/api/reject/${studentId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason: reason })
+                });
                 const result = await res.json();
 
                 if (result.success) {
-                    alert(result.message);
+                    alert(`🚫 ${result.message}`);
                     refreshAll();
                 } else {
-                    alert(result.error);
+                    alert(`⚠️ ${result.error}`);
                 }
             } catch (err) {
                 alert("Error rejecting student.");
+            }
+        }
+
+        async function promptRejectHead() {
+            try {
+                const res = await fetch("/api/dashboard");
+                const data = await res.json();
+                if (data.next_student) {
+                    rejectStudent(data.next_student.id);
+                } else {
+                    alert("The queue is empty! No applicant at HEAD to reject.");
+                }
+            } catch (e) {
+                alert("Error fetching next applicant.");
+            }
+        }
+
+        function scrollToRejections() {
+            const el = document.getElementById("rejectionSection");
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+
+        function filterRejectionTable() {
+            const term = (document.getElementById("rejSearchInput") ? document.getElementById("rejSearchInput").value.trim().toLowerCase() : "");
+            const category = (document.getElementById("rejCategoryFilter") ? document.getElementById("rejCategoryFilter").value : "All");
+
+            let filtered = allRejectedStudents;
+            if (category !== "All") {
+                filtered = filtered.filter(s => s.reason_category === category || (s.rejection_reason || "").toLowerCase().includes(category.toLowerCase()));
+            }
+            if (term) {
+                filtered = filtered.filter(s =>
+                    (s.name && s.name.toLowerCase().includes(term)) ||
+                    (s.app_no && s.app_no.toLowerCase().includes(term)) ||
+                    (s.department && s.department.toLowerCase().includes(term)) ||
+                    (s.rejection_reason && s.rejection_reason.toLowerCase().includes(term))
+                );
+            }
+
+            renderRejectionsTable(filtered);
+        }
+
+        function renderRejectionsTable(students) {
+            const tbody = document.getElementById("rejectionTableBody");
+            const countLabel = document.getElementById("rejFilteredCountText");
+            if (countLabel) {
+                countLabel.textContent = `Showing ${students.length} of ${allRejectedStudents.length} rejected applicants`;
+            }
+
+            if (!tbody) return;
+            if (!students || students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center">No rejected applicants matching current filters.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = students.slice(0, 100).map(s => {
+                let badgeClass = "badge-reason-other";
+                let cat = s.reason_category || "Other";
+                if (cat.includes("Marks")) badgeClass = "badge-reason-marks";
+                else if (cat.includes("Cert")) badgeClass = "badge-reason-cert";
+                else if (cat.includes("Fee")) badgeClass = "badge-reason-fees";
+
+                return `
+                    <tr>
+                        <td><strong class="font-mono">${s.app_no || ('#' + s.id)}</strong></td>
+                        <td>
+                            <strong>${s.name}</strong>
+                            <small class="d-block text-muted">📞 ${s.phone || 'N/A'}</small>
+                        </td>
+                        <td>
+                            <span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span>
+                            <small class="d-block">${s.department}</small>
+                        </td>
+                        <td>
+                            <strong class="marks-text">${s.marks}%</strong>
+                            <small class="d-block text-muted">Total: ${s.marks_total || (s.marks * 6).toFixed(1)}/600</small>
+                        </td>
+                        <td>
+                            <span class="${badgeClass}">${cat}</span>
+                        </td>
+                        <td class="reason-desc-cell">
+                            ${s.rejection_reason || 'Disqualified: Minimum program criteria not satisfied.'}
+                        </td>
+                        <td>
+                            <button class="btn-action btn-sm btn-success" onclick="reinstateStudent(${s.id})" title="Reinstate candidate back to queue via Undo">
+                                Reinstate
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        async function reinstateStudent(studentId) {
+            if (!confirm(`Are you sure you want to reinstate Application #${studentId} back to the active queue?`)) return;
+            try {
+                const res = await fetch("/api/undo", { method: "POST" });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`✅ Application reinstated back into queue!`);
+                    refreshAll();
+                } else {
+                    alert(`⚠️ ${data.error}`);
+                }
+            } catch (e) {
+                alert("Could not reinstate student.");
             }
         }
 

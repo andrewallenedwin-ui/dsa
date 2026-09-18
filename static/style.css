@@ -249,13 +249,25 @@ body {
     color: var(--neutral-dark);
 }
 
-/* Stats Ribbon */
+/* Stats Ribbon - Balanced 8 Cards Layout (4 x 2) */
 .dashboard-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
     margin-bottom: 24px;
     width: 100%;
+}
+
+@media (max-width: 1100px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 580px) {
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stat-box {
@@ -293,6 +305,15 @@ body {
 .available-box .stat-number { color: var(--accent); }
 .queue-box .stat-number { color: var(--warning); }
 .stack-box .stat-number { color: #8b5cf6; }
+.rejected-box .stat-number { color: #dc2626; }
+.rejected-box {
+    border-left: 4px solid #ef4444;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.rejected-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
 
 /* Master Board */
 .master-board-card {
@@ -2075,5 +2096,116 @@ select:focus {
     text-align: center;
     font-size: 0.75rem;
     color: #64748b;
+}
+
+/* Rejected Applications & Disqualification Desk */
+.rejection-desk-card {
+    border-top: 4px solid #ef4444;
+    background: #ffffff;
+    margin-bottom: 24px;
+}
+
+.rejection-summary-ribbon {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.rej-stat-pill {
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.rej-stat-pill.pill-marks {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+.rej-stat-pill.pill-cert {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.rej-stat-pill.pill-fees {
+    background: #faf5ff;
+    border-color: #e9d5ff;
+    color: #6b21a8;
+}
+
+.rej-stat-pill .pill-icon {
+    font-size: 1.8rem;
+}
+
+.rej-stat-pill .pill-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.rej-stat-pill .pill-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    opacity: 0.88;
+}
+
+.badge-reason-marks {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.badge-reason-cert {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.badge-reason-fees {
+    background: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #d8b4fe;
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.badge-reason-other {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.reason-desc-cell {
+    font-size: 0.83rem;
+    line-height: 1.45;
+    color: var(--neutral-dark);
+    max-width: 340px;
 }
 

@@ -283,8 +283,8 @@
 
                 <div class="contact-col">
                     <h4>Direct Inquiries & Helplines</h4>
-                    <p>📞 <strong>Admission Office:</strong> +91 (044) 2239 0675 / +91 (044) 2239 6772</p>
-                    <p>💬 <strong>WhatsApp Query Desk:</strong> +91 98401 23456</p>
+                    <p>📞 <strong>Admission Office:</strong> +91 9342311026 / +91 (044) 2239 0675</p>
+                    <p>💬 <strong>WhatsApp Query Desk:</strong> +91 9342311026</p>
                     <p>✉️ <strong>Admission Inquiries:</strong> <a href="mailto:admissions@abccollege.edu.in">admissions@abccollege.edu.in</a></p>
                     <p>🛡️ <strong>Student Grievance Cell:</strong> <a href="mailto:grievance@abccollege.edu.in">grievance@abccollege.edu.in</a></p>
                 </div>
@@ -519,8 +519,8 @@
                         statusDesc = `Seat ${s.seat_number} allocated in ${s.department} (${s.stream || 'Aided'}). Allocated on: ${s.allocated_at || "Today"}`;
                     } else if (s.status === "rejected") {
                         badgeClass = "badge-rejected";
-                        statusTitle = "Application Not Accepted";
-                        statusDesc = "Application did not meet cutoff criteria or was declined by admission committee.";
+                        statusTitle = "Application Disqualified / Declined";
+                        statusDesc = `<strong>Official Disqualification Reason:</strong> ${s.rejection_reason || 'Application did not meet minimum eligibility or verification criteria.'}<br><small class="text-muted" style="display:block; margin-top:8px;">For appeals, fee reconciliation, or certificate submission, contact the Admission Helpline at <strong>+91 9342311026</strong>.</small>`;
                     }
 
                     // Certificate Badge
@@ -578,6 +578,14 @@
                                     <span class="m-pill total-pill">Total: <strong>${s.marks_total || '-'} / 600</strong></span>
                                 </div>
                             </div>
+
+                            ${s.status === 'rejected' ? `
+                                <div class="alert alert-danger" style="margin: 14px 0; border-left: 4px solid #dc2626; background: #fef2f2; color: #991b1b; padding: 12px 14px; border-radius: 6px;">
+                                    <strong>🚫 Disqualification Notice:</strong>
+                                    <p style="margin: 4px 0 0 0; font-size: 0.88rem;">${s.rejection_reason || 'Application requirements unfulfilled.'}</p>
+                                    <small style="display:block; margin-top: 6px; color: #7f1d1d;">Admissions Helpline Desk: <strong>+91 9342311026</strong> (09:00 AM - 05:00 PM IST)</small>
+                                </div>
+                            ` : ''}
 
                             <!-- 5-Stage Visual Progress Stepper -->
                             <div class="stepper stepper-5">

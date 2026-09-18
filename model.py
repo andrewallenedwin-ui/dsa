@@ -95,6 +95,7 @@ def init_db():
             cert_status TEXT DEFAULT 'pending',
             cert_remarks TEXT DEFAULT '',
             cert_docs TEXT DEFAULT '',
+            rejection_reason TEXT DEFAULT '',
             application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -113,11 +114,26 @@ def init_db():
         ("course_code", "TEXT DEFAULT ''"),
         ("cert_status", "TEXT DEFAULT 'pending'"),
         ("cert_remarks", "TEXT DEFAULT ''"),
-        ("cert_docs", "TEXT DEFAULT ''")
+        ("cert_docs", "TEXT DEFAULT ''"),
+        ("rejection_reason", "TEXT DEFAULT ''")
     ]
     for col_name, col_def in columns_to_add:
         if col_name not in existing_cols:
             cursor.execute(f"ALTER TABLE students ADD COLUMN {col_name} {col_def}")
+
+    # Backfill realistic rejection reasons for existing rejected records
+    cursor.execute("SELECT id, marks, department, cert_status FROM students WHERE status = 'rejected'")
+    rej_rows = cursor.fetchall()
+    for idx, row in enumerate(rej_rows):
+        s_id = row["id"]
+        s_marks = row["marks"]
+        if idx % 3 == 0:
+            reason = "Certificate Pending: Original Transfer Certificate (TC) & 12th Marksheet verification unfulfilled"
+        elif idx % 3 == 1:
+            reason = f"Marks Below Cutoff: HSC aggregate ({s_marks}%) did not meet minimum department cutoff"
+        else:
+            reason = "Admission Fees Issue: Prescribed first semester tuition fee remittance deadline expired"
+        cursor.execute("UPDATE students SET rejection_reason = ? WHERE id = ?", (reason, s_id))
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS admissions (
@@ -258,6 +274,7 @@ def seed_demo_if_empty():
                 gender = "Female" if i % 2 == 0 else "Male"
 
                 # Generate 6 realistic subject marks centered on cutoff & stream
+                rejection_reason = ""
                 if i < 10:
                     # Admitted cohort (high marks)
                     base_m = min(98.5, max(cutoff + 1.0, cutoff + (10 - i) * 1.5 + random.uniform(-1.5, 2.0)))
@@ -270,6 +287,12 @@ def seed_demo_if_empty():
                     status = "rejected"
                     cert_status = "flagged" if i == 10 else "rejected"
                     queue_pos = None
+                    if i == 10:
+                        rejection_reason = "Certificate Pending: Original Transfer Certificate (TC) & 12th Marksheet verification unfulfilled"
+                    elif c_idx % 2 == 0:
+                        rejection_reason = f"Marks Below Cutoff: HSC aggregate ({round(base_m, 1)}%) below minimum cutoff of {cutoff}%"
+                    else:
+                        rejection_reason = "Admission Fees Issue: Prescribed first semester tuition fee remittance deadline expired"
                 else:
                     # Pending in subject queue (queue position 1 to 20)
                     base_m = min(97.0, max(52.0, cutoff + random.uniform(-8.0, 10.0)))
@@ -295,7 +318,7 @@ def seed_demo_if_empty():
                 students_to_insert.append((
                     student_counter, app_no, student_name, email, phone, course_name, stream, course_code,
                     marks_avg, m1, m2, m3, m4, m5, m6, marks_total, gender, status, queue_pos,
-                    cert_status, cert_remarks, cert_docs, app_date
+                    cert_status, cert_remarks, cert_docs, rejection_reason, app_date
                 ))
 
                 if status == "admitted":
@@ -312,8 +335,8 @@ def seed_demo_if_empty():
             INSERT INTO students
             (id, app_no, name, email, phone, department, stream, course_code,
              marks, m1, m2, m3, m4, m5, m6, marks_total, gender, status, queue_position,
-             cert_status, cert_remarks, cert_docs, application_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             cert_status, cert_remarks, cert_docs, rejection_reason, application_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, students_to_insert)
 
         cursor.executemany("""
@@ -515,17 +538,74 @@ def get_pending_students():
     return [dict(row) for row in rows]
 
 
-def update_student_status(student_id, status):
+def update_student_status(student_id, status, rejection_reason=None):
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "UPDATE students SET status = ? WHERE id = ?",
-        (status, student_id)
-    )
+    if status == "rejected":
+        reason = rejection_reason or "Disqualified: Eligibility cutoff or document verification requirements not fulfilled"
+        cursor.execute(
+            "UPDATE students SET status = ?, rejection_reason = ? WHERE id = ?",
+            (status, reason, student_id)
+        )
+    else:
+        cursor.execute(
+            "UPDATE students SET status = ?, rejection_reason = '' WHERE id = ?",
+            (status, student_id)
+        )
 
     conn.commit()
     conn.close()
+
+
+def get_rejection_stats():
+    """
+    Returns aggregated rejection metrics, reason categorization breakdown,
+    and the full list of disqualified/rejected student records.
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, app_no, name, email, phone, department, stream, course_code,
+               marks, marks_total, gender, status, cert_status, cert_remarks,
+               rejection_reason, application_date
+        FROM students
+        WHERE status = 'rejected'
+        ORDER BY id DESC
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+
+    rejected_list = [dict(r) for r in rows]
+    marks_count = 0
+    cert_count = 0
+    fees_count = 0
+    other_count = 0
+
+    for r in rejected_list:
+        reason = (r.get("rejection_reason") or "").lower()
+        if "cert" in reason or "document" in reason or "tc" in reason:
+            cert_count += 1
+            r["reason_category"] = "Certificate Pending / Issue"
+        elif "fee" in reason:
+            fees_count += 1
+            r["reason_category"] = "Admission Fee Issue"
+        elif "mark" in reason or "cutoff" in reason:
+            marks_count += 1
+            r["reason_category"] = "Marks Below Cutoff"
+        else:
+            other_count += 1
+            r["reason_category"] = "Application Discrepancy"
+
+    return {
+        "total_rejected": len(rejected_list),
+        "marks_count": marks_count,
+        "cert_count": cert_count,
+        "fees_count": fees_count,
+        "other_count": other_count,
+        "students": rejected_list
+    }
 
 
 def get_total_seats():

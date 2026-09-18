@@ -277,9 +277,17 @@ def reject_student(student_id):
             "error": "Student not found"
         }), 404
 
-    # Remove from queue if present
+    data = request.get_json(silent=True) or {}
+    reason = data.get("reason") or data.get("rejection_reason")
+    if not reason:
+        reason = "Disqualified: Mandatory document verification or minimum eligibility cutoff not fulfilled"
+
+    # Remove from both global queue and department queue if present
     admission_queue.remove_by_id(student_id)
-    models.update_student_status(student_id, "rejected")
+    c_code = student.get("course_code") or "GEN"
+    subject_queues.remove_by_id(student_id)
+
+    models.update_student_status(student_id, "rejected", rejection_reason=reason)
 
     action_record = {
         "type": "REJECT",
@@ -288,6 +296,7 @@ def reject_student(student_id):
         "student_name": student["name"],
         "department": student.get("department", ""),
         "stream": student.get("stream", "Aided"),
+        "rejection_reason": reason,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     admin_stack.push(action_record)
@@ -295,13 +304,14 @@ def reject_student(student_id):
     models.record_admin_action(
         "REJECT",
         student_id,
-        f"Application rejected for {student['name']}"
+        f"Application rejected for {student['name']}: {reason}"
     )
 
     return jsonify({
         "success": True,
-        "message": f"Application for '{student['name']}' has been rejected.",
-        "student_id": student_id
+        "message": f"Application for '{student['name']}' has been rejected. Reason: {reason}",
+        "student_id": student_id,
+        "rejection_reason": reason
     })
 
 
@@ -422,6 +432,7 @@ def dashboard():
     total_seats = models.get_total_seats()
     filled_seats = models.get_filled_seats()
     all_students = models.get_all_students()
+    rejection_data = models.get_rejection_stats()
 
     total_verified = sum(1 for s in all_students if s.get("cert_status") == "verified")
     total_pending_cert = sum(1 for s in all_students if s.get("cert_status") == "pending")
@@ -440,11 +451,36 @@ def dashboard():
         "total_verified": total_verified,
         "total_pending_cert": total_pending_cert,
         "total_flagged_cert": total_flagged_cert,
+        "total_rejected": rejection_data["total_rejected"],
+        "rejection_marks_count": rejection_data["marks_count"],
+        "rejection_cert_count": rejection_data["cert_count"],
+        "rejection_fees_count": rejection_data["fees_count"],
+        "rejection_other_count": rejection_data["other_count"],
+        "rejected_students": rejection_data["students"],
         "stack_size": admin_stack.size(),
         "recent_actions": admin_stack.get_recent_actions(8),
         "courses": models.get_course_stats(),
         "hourly_stats": models.get_hourly_admissions(),
         "time": datetime.now().strftime("%d-%b-%Y %I:%M:%S %p")
+    })
+
+
+@app.route("/api/rejections")
+def get_rejections():
+    category = request.args.get("category", "All")
+    stats = models.get_rejection_stats()
+    students = stats["students"]
+    if category and category != "All":
+        students = [s for s in students if s.get("reason_category") == category]
+    return jsonify({
+        "success": True,
+        "total_rejected": stats["total_rejected"],
+        "marks_count": stats["marks_count"],
+        "cert_count": stats["cert_count"],
+        "fees_count": stats["fees_count"],
+        "other_count": stats["other_count"],
+        "filtered_count": len(students),
+        "students": students
     })
 
 
