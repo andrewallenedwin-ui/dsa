@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC College of Arts & Science | Master Admission Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-top">
+                <div class="brand">
+                    <span class="college-logo">🎓</span>
+                    <div>
+                        <h1>ABC College Master Admission Dashboard</h1>
+                        <p class="subtitle">Live DSA Demonstration: Queue (FIFO) &bull; Stack (LIFO) &bull; Selection Sort Merit Engine</p>
+                    </div>
+                </div>
+                <div class="header-badge-group">
+                    <a class="nav-btn" href="/">
+                        <span class="icon">👤</span> Student Portal
+                    </a>
+                    <button class="nav-btn btn-danger-outline" onclick="resetDemoData()">
+                        <span class="icon">🔄</span> Reset Demo Data
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- KPI Metric Ribbon -->
+        <section class="stats-grid dashboard-stats">
+            <div class="stat-box">
+                <span class="stat-label">Total College Seats</span>
+                <span id="totalSeats" class="stat-number">340</span>
+                <span class="stat-sub">Across 6 Arts & Science Depts</span>
+            </div>
+
+            <div class="stat-box filled-box">
+                <span class="stat-label">Seats Filled</span>
+                <span id="filledSeats" class="stat-number">0</span>
+                <span class="stat-sub">Confirmed Admissions</span>
+            </div>
+
+            <div class="stat-box available-box">
+                <span class="stat-label">Seats Remaining</span>
+                <span id="availableSeats" class="stat-number">340</span>
+                <span class="stat-sub">Currently Open for Allocation</span>
+            </div>
+
+            <div class="stat-box queue-box">
+                <span class="stat-label">Waiting in Queue</span>
+                <span id="queueSize" class="stat-number">0</span>
+                <span class="stat-sub">FIFO Processing Pipeline</span>
+            </div>
+
+            <div class="stat-box stack-box">
+                <span class="stat-label">Undo Stack Depth</span>
+                <span id="stackSize" class="stat-number">0</span>
+                <span class="stat-sub">Reversible Actions (LIFO)</span>
+            </div>
+        </section>
+
+        <!-- MASTER BOARD: Real-Time Seat Monitoring -->
+        <section class="card wide-card master-board-card">
+            <div class="card-header">
+                <div class="card-icon">📊</div>
+                <div>
+                    <h2>Master Board: Real-Time Admission & Seat Filling Monitor</h2>
+                    <p class="small-text">
+                        Tracks hourly admission inflow and capacity utilization across all Arts & Science departments.
+                    </p>
+                </div>
+                <div class="live-clock">
+                    <span class="pulse-dot"></span> Live Time: <strong id="lastUpdated">Loading...</strong>
+                </div>
+            </div>
+
+            <div class="master-board-grid">
+                <!-- Hourly Seat Filling Chart -->
+                <div class="master-col">
+                    <h3>Seat Filling Status Per Hour</h3>
+                    <p class="small-subtext">Hourly admissions breakdown (9:00 AM - 5:00 PM admission hours):</p>
+                    <div id="hourlyChart" class="hourly-chart-container">
+                        <p class="loading-text">Loading hourly trends...</p>
+                    </div>
+                </div>
+
+                <!-- Course-wise seat availability breakdown with Stream tabs -->
+                <div class="master-col">
+                    <div class="master-col-header">
+                        <h3>Department Quota & Seat Status</h3>
+                        <div class="stream-filter-pills">
+                            <button class="pill-btn active" id="adminPillAll" onclick="filterMasterBoardCourses('All')">All (33)</button>
+                            <button class="pill-btn" id="adminPillAided" onclick="filterMasterBoardCourses('Aided')">Aided</button>
+                            <button class="pill-btn" id="adminPillSFS" onclick="filterMasterBoardCourses('SFS')">SFS</button>
+                        </div>
+                    </div>
+                    <p class="small-subtext">Real-time capacity tracking per program & stream:</p>
+                    <div id="courseBreakdown" class="course-progress-list max-h-scroll">
+                        <p class="loading-text">Loading department progress...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN DSA LAB: Interactive Queue & Stack Panels -->
+        <div class="admin-grid">
+            <!-- DSA 1: Admission Queue (FIFO) -->
+            <section class="card dsa-card queue-container-card">
+                <div class="card-header">
+                    <div class="card-icon queue-icon">⚡</div>
+                    <div>
+                        <div class="dsa-badge badge-queue">FIFO &bull; O(1) Operations</div>
+                        <h2>Admission Queue (FIFO)</h2>
+                        <p class="small-text">First In, First Out: Applicant who submitted earliest is at the HEAD.</p>
+                    </div>
+                </div>
+
+                <div class="queue-control-bar">
+                    <button class="btn btn-success btn-lg" onclick="admitNextStudent()">
+                        <span>Admit Next Student &bull; dequeue()</span>
+                    </button>
+                    <span class="method-call">Time Complexity: O(1)</span>
+                </div>
+
+                <!-- Visual Queue Pipeline Diagram -->
+                <div class="pipeline-header">
+                    <span class="pipeline-tag head-tag">HEAD (Front / Next Out)</span>
+                    <span class="pipeline-tag tail-tag">TAIL (Rear / New Entry)</span>
+                </div>
+                <div id="visualQueue" class="visual-queue-track">
+                    <p class="loading-text">Loading admission queue...</p>
+                </div>
+
+                <div class="dsa-explainer">
+                    <strong>DSA Mechanism:</strong>
+                    <code>enqueue(student)</code> appends to the tail when student applies. 
+                    <code>dequeue()</code> pops from the head, allocating a confirmed course-specific seat.
+                </div>
+            </section>
+
+            <!-- DSA 2: Admin Action Stack (LIFO) -->
+            <section class="card dsa-card stack-container-card">
+                <div class="card-header">
+                    <div class="card-icon stack-icon">⏪</div>
+                    <div>
+                        <div class="dsa-badge badge-stack">LIFO &bull; O(1) Operations</div>
+                        <h2>Admin Action Stack (LIFO)</h2>
+                        <p class="small-text">Last In, First Out: Latest action is on TOP and undone first.</p>
+                    </div>
+                </div>
+
+                <div class="queue-control-bar">
+                    <button class="btn btn-warning btn-lg" onclick="undoLastAction()">
+                        <span>Undo Last Action &bull; pop()</span>
+                    </button>
+                    <span class="method-call">Time Complexity: O(1)</span>
+                </div>
+
+                <!-- Visual Stack Cards Stacked Vertically -->
+                <div class="stack-shelf-header">
+                    <span class="stack-marker top-marker">TOP OF STACK (pop / peek target)</span>
+                </div>
+                <div id="visualStack" class="visual-stack-tower">
+                    <p class="empty-text">Stack is currently empty.</p>
+                </div>
+                <div class="stack-shelf-footer">
+                    <span class="stack-marker bottom-marker">BOTTOM OF STACK (Base)</span>
+                </div>
+
+                <div class="dsa-explainer">
+                    <strong>DSA Mechanism:</strong>
+                    Each admin decision (Admit/Reject) is <code>push(action)</code>ed to top of stack.
+                    Clicking Undo invokes <code>pop()</code>, reversing the action and returning student to the queue.
+                </div>
+            </section>
+        </div>
+
+        <!-- DSA 3: Selection Sort Merit Ranker -->
+        <section class="card wide-card dsa-card sort-container-card">
+            <div class="card-header">
+                <div class="card-icon sort-icon">🔢</div>
+                <div class="header-fill">
+                    <div class="dsa-badge badge-sort">O(n²) Time Complexity &bull; O(1) Space</div>
+                    <h2>Selection Sort: Merit Ranking Engine</h2>
+                    <p class="small-text">
+                        Sorts applicants by 12th Standard Marks in descending order. Filter by Stream or Department to see pass-by-pass selection sort in action.
+                    </p>
+                </div>
+                <div class="sort-controls">
+                    <select id="sortStreamFilter" onchange="handleSortFilterChange()">
+                        <option value="All">All Streams (Aided & SFS)</option>
+                        <option value="Aided">Government Aided Only</option>
+                        <option value="SFS">Self-Financed (SFS) Only</option>
+                    </select>
+                    <select id="sortDeptFilter" onchange="runSelectionSort(false)">
+                        <option value="All">All Programs</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="runSelectionSort(true)">
+                        <span>▶ Run Step-by-Step Animation</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Algorithm Metrics Bar -->
+            <div class="algo-stats-bar">
+                <div class="algo-stat">
+                    <span>Algorithm:</span>
+                    <strong>Selection Sort</strong>
+                </div>
+                <div class="algo-stat">
+                    <span>Time Complexity:</span>
+                    <strong class="font-mono">O(n²)</strong>
+                </div>
+                <div class="algo-stat">
+                    <span>Space Complexity:</span>
+                    <strong class="font-mono">O(1) Auxiliary</strong>
+                </div>
+                <div class="algo-stat">
+                    <span>Total Comparisons:</span>
+                    <strong id="algoComparisons" class="font-mono">-</strong>
+                </div>
+                <div class="algo-stat">
+                    <span>Swaps Made:</span>
+                    <strong id="algoSwaps" class="font-mono">-</strong>
+                </div>
+            </div>
+
+            <!-- Visual Animation Sandbox -->
+            <div id="sortTraceContainer" class="sort-trace-box hidden">
+                <div class="trace-header">
+                    <div id="tracePassTitle" class="trace-title">Pass 0 / 0</div>
+                    <div class="trace-nav">
+                        <button class="btn-step" id="btnPrevStep" onclick="stepSort(-1)">◀ Prev Step</button>
+                        <button class="btn-step" id="btnPlayPause" onclick="togglePlayTrace()">⏸ Pause</button>
+                        <button class="btn-step" id="btnNextStep" onclick="stepSort(1)">Next Step ▶</button>
+                    </div>
+                </div>
+                <p id="traceDescription" class="trace-desc">Initial state</p>
+                <div id="sortVisualBars" class="sort-bars-row"></div>
+            </div>
+
+            <!-- Merit Ranks Output Table -->
+            <div class="merit-table-wrapper">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Merit Rank</th>
+                            <th>Application No</th>
+                            <th>Student Name</th>
+                            <th>Stream</th>
+                            <th>Department</th>
+                            <th>12th Marks (%)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="meritTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center">Click "Run Step-by-Step Animation" to generate merit ranking.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- All Student Applications Database Table -->
+        <section class="card wide-card">
+            <div class="card-header">
+                <div class="card-icon">📁</div>
+                <div>
+                    <h2>All Student Applications (SQLite Database)</h2>
+                    <p class="small-text">Complete persistent repository of all applicant records.</p>
+                </div>
+                <div class="table-search-bar">
+                    <input type="text" id="tableSearchInput" placeholder="Search by name, App No, or department..." oninput="filterStudentTable()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>App No</th>
+                            <th>Student Name</th>
+                            <th>Stream</th>
+                            <th>Department</th>
+                            <th>12th Marks</th>
+                            <th>Status</th>
+                            <th>Queue Position</th>
+                            <th>Seat Allotment</th>
+                            <th>Admin Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable">
+                        <tr>
+                            <td colspan="9" class="text-center">Loading student applications...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p><strong>ABC College of Arts & Science &bull; Master Admission Dashboard</strong></p>
+            <p>Data Structures and Algorithms ICA 2 Project &bull; Queue (FIFO) &bull; Stack (LIFO) &bull; Selection Sort</p>
+        </footer>
+    </div>
+
+    <!-- Dashboard Scripts -->
+    <script>
+        let currentTraceSteps = [];
+        let currentStepIndex = 0;
+        let tracePlayTimer = null;
+        let allAdminCourses = [];
+        let allStudentsList = [];
+        let currentMasterStream = 'All';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            refreshAll();
+            setInterval(refreshAll, 10000);
+        });
+
+        async function refreshAll() {
+            await loadDashboard();
+            await loadStudents();
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch("/api/dashboard");
+                const data = await res.json();
+                if (!data.success) return;
+
+                document.getElementById("totalSeats").textContent = data.total_seats;
+                document.getElementById("filledSeats").textContent = data.filled_seats;
+                document.getElementById("availableSeats").textContent = data.available_seats;
+                document.getElementById("queueSize").textContent = data.queue_size;
+                document.getElementById("stackSize").textContent = data.stack_size;
+                document.getElementById("lastUpdated").textContent = data.time;
+
+                allAdminCourses = data.courses;
+                populateAdminSortCourses();
+                renderHourlyChart(data.hourly_stats);
+                renderCourseBreakdown(data.courses);
+                renderVisualQueue(data.queue_items);
+                renderVisualStack(data.recent_actions);
+            } catch (err) {
+                console.error("Dashboard error:", err);
+            }
+        }
+
+        function populateAdminSortCourses() {
+            const streamVal = document.getElementById("sortStreamFilter").value;
+            const deptSelect = document.getElementById("sortDeptFilter");
+            const currentSelected = deptSelect.value;
+
+            let filtered = allAdminCourses;
+            if (streamVal !== "All") {
+                filtered = allAdminCourses.filter(c => c.stream === streamVal);
+            }
+
+            let html = '<option value="All">All Programs in ' + (streamVal === 'All' ? 'College' : streamVal) + '</option>';
+            filtered.forEach(c => {
+                html += `<option value="${c.name}">${c.name} (${c.stream})</option>`;
+            });
+            deptSelect.innerHTML = html;
+            if (currentSelected && filtered.some(c => c.name === currentSelected)) {
+                deptSelect.value = currentSelected;
+            }
+        }
+
+        function handleSortFilterChange() {
+            populateAdminSortCourses();
+            runSelectionSort(false);
+        }
+
+        function filterMasterBoardCourses(stream) {
+            currentMasterStream = stream;
+            document.querySelectorAll(".stream-filter-pills .pill-btn").forEach(btn => btn.classList.remove("active"));
+            if (stream === 'All') document.getElementById("adminPillAll").classList.add("active");
+            if (stream === 'Aided') document.getElementById("adminPillAided").classList.add("active");
+            if (stream === 'SFS') document.getElementById("adminPillSFS").classList.add("active");
+
+            renderCourseBreakdown(allAdminCourses);
+        }
+
+        function renderHourlyChart(hourlyStats) {
+            const container = document.getElementById("hourlyChart");
+            if (!container) return;
+
+            if (!hourlyStats || hourlyStats.length === 0) {
+                container.innerHTML = `<p class="empty-text">No admission activity recorded yet today.</p>`;
+                return;
+            }
+
+            const maxVal = Math.max(...hourlyStats.map(h => h.count), 5);
+
+            container.innerHTML = `
+                <div class="hourly-bars-group">
+                    ${hourlyStats.map(h => {
+                        const pct = Math.max(8, (h.count / maxVal) * 100);
+                        return `
+                            <div class="hourly-bar-col">
+                                <span class="bar-count">${h.count}</span>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="height: ${pct}%;"></div>
+                                </div>
+                                <span class="bar-label">${h.hour}</span>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            `;
+        }
+
+        function renderCourseBreakdown(courses) {
+            const container = document.getElementById("courseBreakdown");
+            if (!container || !courses) return;
+
+            let filtered = courses;
+            if (currentMasterStream !== 'All') {
+                filtered = courses.filter(c => c.stream === currentMasterStream);
+            }
+
+            container.innerHTML = filtered.map(c => `
+                <div class="course-progress-item">
+                    <div class="cp-title-row">
+                        <span class="cp-name">
+                            <span class="stream-tag stream-${c.stream.toLowerCase()}">${c.stream}</span>
+                            <strong>${c.name}</strong> 
+                            <small class="text-muted">(${c.category})</small>
+                        </span>
+                        <span class="cp-seats"><strong>${c.filled_seats}</strong> / ${c.total_seats} filled (${c.available_seats} remaining)</span>
+                    </div>
+                    <div class="cp-bar-track">
+                        <div class="cp-bar-fill" style="width: ${c.fill_percentage}%;"></div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function renderVisualQueue(queueItems) {
+            const container = document.getElementById("visualQueue");
+            if (!container) return;
+
+            if (!queueItems || queueItems.length === 0) {
+                container.innerHTML = `
+                    <div class="queue-empty-box">
+                        <span class="icon">✨</span>
+                        <p>Admission Queue is empty! All submitted applications have been processed.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = queueItems.map((s, idx) => {
+                const isHead = idx === 0;
+                return `
+                    <div class="queue-node ${isHead ? 'is-head-node' : ''}">
+                        ${isHead ? '<div class="head-marker">NEXT OUT</div>' : ''}
+                        <div class="q-pos">#${idx + 1}</div>
+                        <div class="q-info">
+                            <span class="app-code">${s.app_no || ('ID #' + s.id)}</span>
+                            <strong>${s.name}</strong>
+                            <small><span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span> ${s.department}</small>
+                            <span class="q-marks">${s.marks}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function renderVisualStack(stackActions) {
+            const container = document.getElementById("visualStack");
+            if (!container) return;
+
+            if (!stackActions || stackActions.length === 0) {
+                container.innerHTML = `<p class="empty-text">No actions in the stack yet. Admissions or rejections will appear here.</p>`;
+                return;
+            }
+
+            container.innerHTML = stackActions.map((act, idx) => {
+                const isTop = idx === 0;
+                return `
+                    <div class="stack-plate ${act.type.toLowerCase()} ${isTop ? 'is-top-plate' : ''}">
+                        ${isTop ? '<span class="top-tag">TOP</span>' : ''}
+                        <div class="plate-main">
+                            <span class="plate-type badge badge-${act.type === 'ADMIT' ? 'admitted' : 'rejected'}">${act.type}</span>
+                            <div>
+                                <strong>${act.student_name || 'Student #' + act.student_id}</strong>
+                                <small class="text-muted">(${act.app_no || '#' + act.student_id})</small>
+                            </div>
+                            ${act.seat_number ? `<span class="plate-seat">Seat ${act.seat_number}</span>` : ''}
+                        </div>
+                        <small class="plate-time">${act.timestamp}</small>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        async function loadStudents() {
+            try {
+                const res = await fetch("/api/students");
+                const data = await res.json();
+                if (data.success) {
+                    allStudentsList = data.students;
+                    renderStudentTableRows(allStudentsList);
+                }
+            } catch (err) {
+                console.error("Load students error:", err);
+            }
+        }
+
+        function renderStudentTableRows(students) {
+            const tableBody = document.getElementById("studentTable");
+            if (!students || students.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="9" class="text-center">No student applications found.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = students.map(s => `
+                <tr>
+                    <td><strong class="font-mono">${s.app_no || ('#' + s.id)}</strong></td>
+                    <td><strong>${s.name}</strong></td>
+                    <td><span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span></td>
+                    <td>${s.department}</td>
+                    <td><strong class="marks-text">${s.marks}%</strong></td>
+                    <td><span class="badge badge-${s.status}">${s.status.toUpperCase()}</span></td>
+                    <td>${s.status === 'pending' ? '#' + s.queue_position : '-'}</td>
+                    <td>${s.seat_number ? '<span class="seat-badge">' + s.seat_number + '</span>' : '<span class="text-muted">-</span>'}</td>
+                    <td>
+                        ${s.status === 'pending' ? `
+                            <button class="btn-action btn-danger" onclick="rejectStudent(${s.id})">Reject</button>
+                        ` : `<span class="text-muted">Processed</span>`}
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function filterStudentTable() {
+            const term = document.getElementById("tableSearchInput").value.trim().toLowerCase();
+            if (!term) {
+                renderStudentTableRows(allStudentsList);
+                return;
+            }
+            const filtered = allStudentsList.filter(s => 
+                (s.name && s.name.toLowerCase().includes(term)) ||
+                (s.app_no && s.app_no.toLowerCase().includes(term)) ||
+                (s.department && s.department.toLowerCase().includes(term)) ||
+                (s.stream && s.stream.toLowerCase().includes(term))
+            );
+            renderStudentTableRows(filtered);
+        }
+
+        async function admitNextStudent() {
+            try {
+                const res = await fetch("/api/admit-next", { method: "POST" });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert(`✅ ${result.message}\nAllotted Seat Number: ${result.seat_number}`);
+                    refreshAll();
+                } else {
+                    alert(`⚠️ ${result.error}`);
+                }
+            } catch (err) {
+                alert("Could not process admission.");
+            }
+        }
+
+        async function rejectStudent(studentId) {
+            if (!confirm(`Are you sure you want to reject Application #${studentId}? This action can be undone via Stack pop().`)) return;
+
+            try {
+                const res = await fetch(`/api/reject/${studentId}`, { method: "POST" });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    refreshAll();
+                } else {
+                    alert(result.error);
+                }
+            } catch (err) {
+                alert("Error rejecting student.");
+            }
+        }
+
+        async function undoLastAction() {
+            try {
+                const res = await fetch("/api/undo", { method: "POST" });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert(`↩️ ${result.message}`);
+                    refreshAll();
+                } else {
+                    alert(`⚠️ ${result.error}`);
+                }
+            } catch (err) {
+                alert("Error executing undo.");
+            }
+        }
+
+        // Selection Sort Merit Ranking Execution with Stream + Dept filter
+        async function runSelectionSort(startAnimation) {
+            const streamVal = document.getElementById("sortStreamFilter").value;
+            const deptVal = document.getElementById("sortDeptFilter").value;
+            const container = document.getElementById("sortTraceContainer");
+            
+            try {
+                const url = `/api/merit-sort?department=${encodeURIComponent(deptVal)}&stream=${encodeURIComponent(streamVal)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!data.success) return;
+
+                document.getElementById("algoComparisons").textContent = data.total_comparisons;
+                document.getElementById("algoSwaps").textContent = data.total_swaps;
+
+                // Render Final Merit Table
+                const meritTbody = document.getElementById("meritTableBody");
+                meritTbody.innerHTML = data.sorted_students.map(s => `
+                    <tr class="merit-row">
+                        <td><span class="merit-badge">Rank #${s.merit_rank}</span></td>
+                        <td><span class="font-mono">${s.app_no || ('#' + s.id)}</span></td>
+                        <td><strong>${s.name}</strong></td>
+                        <td><span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span></td>
+                        <td>${s.department}</td>
+                        <td><strong class="marks-text">${s.marks}%</strong></td>
+                        <td><span class="badge badge-${s.status}">${s.status.toUpperCase()}</span></td>
+                    </tr>
+                `).join("");
+
+                if (startAnimation && data.trace_steps.length > 0) {
+                    container.classList.remove("hidden");
+                    currentTraceSteps = data.trace_steps;
+                    currentStepIndex = 0;
+                    renderStep(currentStepIndex);
+                    startPlayTrace();
+                }
+            } catch (err) {
+                console.error("Sort error:", err);
+            }
+        }
+
+        function renderStep(idx) {
+            if (idx < 0 || idx >= currentTraceSteps.length) return;
+            const step = currentTraceSteps[idx];
+
+            document.getElementById("tracePassTitle").textContent = `Pass ${step.pass_num} (Step ${idx + 1} of ${currentTraceSteps.length})`;
+            document.getElementById("traceDescription").textContent = step.description;
+
+            const barsBox = document.getElementById("sortVisualBars");
+            barsBox.innerHTML = step.array_state.map((s, itemIdx) => {
+                let barClass = "";
+                if (itemIdx === step.selected_index) barClass = "bar-selected";
+                else if (itemIdx === step.compared_index) barClass = "bar-comparing";
+                else if (itemIdx < step.pass_num - 1) barClass = "bar-sorted";
+
+                return `
+                    <div class="sort-bar-card ${barClass}">
+                        <div class="bar-mark-val">${s.marks}%</div>
+                        <div class="bar-stem" style="height: ${Math.max(20, (s.marks / 100) * 80)}px;"></div>
+                        <div class="bar-name">${s.name.split(" ")[0]}</div>
+                        <div class="bar-rank-tag">#${itemIdx + 1}</div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function stepSort(delta) {
+            stopPlayTrace();
+            const nextIdx = currentStepIndex + delta;
+            if (nextIdx >= 0 && nextIdx < currentTraceSteps.length) {
+                currentStepIndex = nextIdx;
+                renderStep(currentStepIndex);
+            }
+        }
+
+        function togglePlayTrace() {
+            if (tracePlayTimer) {
+                stopPlayTrace();
+            } else {
+                startPlayTrace();
+            }
+        }
+
+        function startPlayTrace() {
+            const btn = document.getElementById("btnPlayPause");
+            btn.textContent = "⏸ Pause";
+            clearInterval(tracePlayTimer);
+            tracePlayTimer = setInterval(() => {
+                if (currentStepIndex < currentTraceSteps.length - 1) {
+                    currentStepIndex++;
+                    renderStep(currentStepIndex);
+                } else {
+                    stopPlayTrace();
+                }
+            }, 1200);
+        }
+
+        function stopPlayTrace() {
+            clearInterval(tracePlayTimer);
+            tracePlayTimer = null;
+            const btn = document.getElementById("btnPlayPause");
+            if (btn) btn.textContent = "▶ Play";
+        }
+
+        async function resetDemoData() {
+            if (!confirm("Reset database to initial demo state with fresh applicants and empty stack?")) return;
+            try {
+                const res = await fetch("/api/reset-demo", { method: "POST" });
+                const data = await res.json();
+                if (data.success) {
+                    alert("Database reset successfully!");
+                    refreshAll();
+                    runSelectionSort(false);
+                }
+            } catch (err) {
+                alert("Reset error.");
+            }
+        }
+
+        // Initialize sort table without animation
+        runSelectionSort(false);
+    </script>
+</body>
+</html>

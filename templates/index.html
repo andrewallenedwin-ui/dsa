@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC College of Arts & Science | Online Admission Portal</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Navigation / Header -->
+        <header class="header">
+            <div class="header-top">
+                <div class="brand">
+                    <span class="college-logo">🎓</span>
+                    <div>
+                        <h1>ABC College of Arts & Science</h1>
+                        <p class="subtitle">Online Admission Management System &bull; Powered by DSA (Queue &bull; Stack &bull; Selection Sort)</p>
+                    </div>
+                </div>
+                <div class="header-badge-group">
+                    <span class="badge badge-accent">ICA 2 Project</span>
+                    <a class="nav-btn admin-link" href="/admin">
+                        <span class="icon">⚙️</span> Master Admin Dashboard
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Architecture Highlights Banner -->
+        <div class="dsa-ribbon">
+            <div class="ribbon-pill">
+                <span class="dsa-tag">QUEUE</span>
+                <span>Applications ordered by submission time (FIFO)</span>
+            </div>
+            <div class="ribbon-pill">
+                <span class="dsa-tag">STACK</span>
+                <span>Admin desk undo & rollback operations (LIFO)</span>
+            </div>
+            <div class="ribbon-pill">
+                <span class="dsa-tag">SELECTION SORT</span>
+                <span>Automated merit rank calculation by 12th marks</span>
+            </div>
+        </div>
+
+        <main class="student-grid">
+            <!-- Application Form Card -->
+            <section class="card form-card">
+                <div class="card-header">
+                    <div class="card-icon">📝</div>
+                    <div>
+                        <h2>Student Admission Application Form</h2>
+                        <p class="small-text">
+                            Applications enter the admission queue in First-Come, First-Served order.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="formAlert" class="alert hidden"></div>
+
+                <form id="applicationForm" onsubmit="handleApply(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name <span class="req">*</span></label>
+                            <input type="text" id="name" required placeholder="e.g. Ramesh Krishnan">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender">
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="req">*</span></label>
+                            <input type="email" id="email" required placeholder="ramesh.k@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number <span class="req">*</span></label>
+                            <input type="tel" id="phone" pattern="[0-9]{10}" required placeholder="10-digit mobile number">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="streamSelect">Select Stream <span class="req">*</span></label>
+                        <select id="streamSelect" onchange="filterCoursesByStream()" required>
+                            <option value="All">All Streams (Aided & SFS)</option>
+                            <option value="Aided">Government Aided (Day Shift)</option>
+                            <option value="SFS">Self-Financed Stream - SFS (Evening Shift)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">Select Degree Program <span class="req">*</span></label>
+                        <select id="department" required>
+                            <option value="">-- Choose Course --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="marks">12th Standard Board Marks Percentage (%) <span class="req">*</span></label>
+                        <div class="input-with-suffix">
+                            <input type="number" id="marks" min="35" max="100" step="0.01" required placeholder="e.g. 89.5">
+                            <span class="input-suffix">%</span>
+                        </div>
+                        <small class="hint-text">Used for Merit Ranking via Selection Sort algorithm</small>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
+                        <span>Submit Application & Enqueue</span> &rarr;
+                    </button>
+                </form>
+
+                <!-- Confirmation Box after submit -->
+                <div id="receiptBox" class="receipt-box hidden">
+                    <div class="receipt-header">
+                        <span class="success-icon">✅</span>
+                        <h3>Application Submitted Successfully!</h3>
+                    </div>
+                    <div class="receipt-details">
+                        <div class="receipt-item highlight">
+                            <span>Unique Application No:</span>
+                            <strong id="receiptAppNo">ABC26-AID-0001</strong>
+                        </div>
+                        <div class="receipt-item">
+                            <span>Token ID & Queue Position:</span>
+                            <span id="receiptQueue" class="badge badge-queue">#1</span>
+                        </div>
+                        <div class="receipt-item">
+                            <span>Stream & Program:</span>
+                            <span id="receiptDept">-</span>
+                        </div>
+                        <div class="receipt-item">
+                            <span>Submitted Marks:</span>
+                            <span id="receiptMarks">-</span>
+                        </div>
+                    </div>
+                    <p class="receipt-note">💡 Please save your <strong>Alphanumeric Application No</strong>. You can check your real-time status in the portal at any time.</p>
+                </div>
+            </section>
+
+            <!-- Status Check Card -->
+            <section class="card status-card">
+                <div class="card-header">
+                    <div class="card-icon">🔍</div>
+                    <div>
+                        <h2>Check Application Status</h2>
+                        <p class="small-text">
+                            Enter your unique Application Number (e.g. <code>ABC26-AID-CS-1001</code>) or numeric ID.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="status-search-box">
+                    <div class="search-input-wrap">
+                        <input type="text" id="searchAppId" placeholder="e.g. ABC26-AID-CS-1001 or 1">
+                        <button class="btn btn-secondary" onclick="checkStatus()">
+                            Track Status
+                        </button>
+                    </div>
+                </div>
+
+                <div id="statusResult" class="status-display-area">
+                    <div class="status-empty-state">
+                        <span class="empty-icon">📋</span>
+                        <p>Submit an application or enter your Application No above to trace your status.</p>
+                    </div>
+                </div>
+
+                <!-- Seat Availability Snapshot with Stream Filter Tabs -->
+                <div class="card-nested seat-summary-box">
+                    <div class="seat-summary-header">
+                        <h3>Arts & Science Seats Availability</h3>
+                        <div class="stream-pills">
+                            <button class="pill-btn active" id="pillAll" onclick="renderCourseSnapshot('All')">All</button>
+                            <button class="pill-btn" id="pillAided" onclick="renderCourseSnapshot('Aided')">Aided</button>
+                            <button class="pill-btn" id="pillSFS" onclick="renderCourseSnapshot('SFS')">SFS</button>
+                        </div>
+                    </div>
+                    <div id="courseSeatsList" class="course-mini-list">
+                        <p class="loading-text">Loading courses data...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p><strong>ABC College of Arts & Science &bull; Online Admission Portal</strong></p>
+            <p>Data Structures and Algorithms ICA 2 Project &bull; Queue (FIFO) &bull; Stack (LIFO) &bull; Selection Sort</p>
+        </footer>
+    </div>
+
+    <script>
+        let allCoursesData = [];
+
+        // Fetch courses on page load
+        async function loadCourses() {
+            try {
+                const res = await fetch("/api/courses");
+                const data = await res.json();
+                if (data.success) {
+                    allCoursesData = data.courses;
+                    populateCourseDropdown();
+                    renderCourseSnapshot('All');
+                }
+            } catch (err) {
+                console.error("Error loading courses:", err);
+            }
+        }
+
+        function populateCourseDropdown() {
+            const select = document.getElementById("department");
+            const streamFilter = document.getElementById("streamSelect").value;
+            
+            let filtered = allCoursesData;
+            if (streamFilter !== "All") {
+                filtered = allCoursesData.filter(c => c.stream === streamFilter);
+            }
+
+            // Group by Stream and Category
+            const aidedCourses = filtered.filter(c => c.stream === "Aided");
+            const sfsCourses = filtered.filter(c => c.stream === "SFS");
+
+            let html = '<option value="">-- Choose Course --</option>';
+
+            if (aidedCourses.length > 0) {
+                html += `<optgroup label="Government Aided Stream (Day Shift)">`;
+                aidedCourses.forEach(c => {
+                    html += `<option value="${c.name}">${c.name} [${c.category}] — Cutoff: ${c.cutoff}% (${c.available_seats} seats left)</option>`;
+                });
+                html += `</optgroup>`;
+            }
+
+            if (sfsCourses.length > 0) {
+                html += `<optgroup label="Self-Financed Stream - SFS (Evening Shift)">`;
+                sfsCourses.forEach(c => {
+                    html += `<option value="${c.name}">${c.name} [${c.category}] — Cutoff: ${c.cutoff}% (${c.available_seats} seats left)</option>`;
+                });
+                html += `</optgroup>`;
+            }
+
+            select.innerHTML = html;
+        }
+
+        function filterCoursesByStream() {
+            populateCourseDropdown();
+        }
+
+        function renderCourseSnapshot(stream) {
+            document.querySelectorAll(".pill-btn").forEach(btn => btn.classList.remove("active"));
+            if (stream === 'All') document.getElementById("pillAll").classList.add("active");
+            if (stream === 'Aided') document.getElementById("pillAided").classList.add("active");
+            if (stream === 'SFS') document.getElementById("pillSFS").classList.add("active");
+
+            const container = document.getElementById("courseSeatsList");
+            if (!container) return;
+
+            let filtered = allCoursesData;
+            if (stream !== 'All') {
+                filtered = allCoursesData.filter(c => c.stream === stream);
+            }
+
+            container.innerHTML = filtered.map(c => `
+                <div class="course-mini-row">
+                    <div class="course-info">
+                        <strong>${c.name}</strong>
+                        <small><span class="stream-tag stream-${c.stream.toLowerCase()}">${c.stream}</span> &bull; ${c.category} &bull; Cutoff: ${c.cutoff}%</small>
+                    </div>
+                    <div class="seats-pill">
+                        <span class="avail">${c.available_seats} left</span>
+                        <span class="total">/ ${c.total_seats}</span>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        // Handle Application Submission
+        async function handleApply(event) {
+            event.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            const alertBox = document.getElementById("formAlert");
+            alertBox.className = "alert hidden";
+
+            const deptName = document.getElementById("department").value;
+            const chosenCourse = allCoursesData.find(c => c.name === deptName);
+
+            const payload = {
+                name: document.getElementById("name").value.trim(),
+                gender: document.getElementById("gender").value,
+                email: document.getElementById("email").value.trim(),
+                phone: document.getElementById("phone").value.trim(),
+                department: deptName,
+                stream: chosenCourse ? chosenCourse.stream : "Aided",
+                marks: document.getElementById("marks").value
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = `<span>Submitting...</span>`;
+
+            try {
+                const res = await fetch("/api/apply", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    // Show receipt
+                    document.getElementById("receiptAppNo").textContent = result.app_no || ("#" + result.student_id);
+                    document.getElementById("receiptQueue").textContent = `Token #${result.student_id} (Queue Pos: #${result.queue_position})`;
+                    document.getElementById("receiptDept").textContent = `${payload.department} [${payload.stream}]`;
+                    document.getElementById("receiptMarks").textContent = payload.marks + "%";
+                    document.getElementById("receiptBox").classList.remove("hidden");
+
+                    // Pre-fill status tracker with alphanumeric app_no
+                    document.getElementById("searchAppId").value = result.app_no || result.student_id;
+                    checkStatus(result.app_no || result.student_id);
+
+                    // Reset form fields
+                    document.getElementById("applicationForm").reset();
+                    alertBox.className = "alert alert-success";
+                    alertBox.textContent = `Application enqueued successfully with Application No: ${result.app_no}!`;
+                } else {
+                    alertBox.className = "alert alert-danger";
+                    alertBox.textContent = result.error || "Failed to submit application.";
+                }
+            } catch (err) {
+                alertBox.className = "alert alert-danger";
+                alertBox.textContent = "Network error. Please try again.";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Submit Application & Enqueue</span> &rarr;`;
+            }
+        }
+
+        // Check Application Status (supports numeric ID or Alphanumeric App No)
+        async function checkStatus(forcedId) {
+            const inputVal = forcedId || document.getElementById("searchAppId").value.trim();
+            const display = document.getElementById("statusResult");
+
+            if (!inputVal) {
+                display.innerHTML = `
+                    <div class="status-alert alert-warning">
+                        Please enter an Application Number (e.g. ABC26-AID-CS-1001) or Token ID.
+                    </div>
+                `;
+                return;
+            }
+
+            display.innerHTML = `<p class="loading-text">Fetching application ${inputVal} status...</p>`;
+
+            try {
+                const res = await fetch(`/api/student/${encodeURIComponent(inputVal)}`);
+                const data = await res.json();
+
+                if (data.success && data.student) {
+                    const s = data.student;
+                    let badgeClass = "badge-pending";
+                    let statusTitle = "In Admission Queue (FIFO)";
+                    let statusDesc = `Currently waiting in queue at position #${s.current_queue_position || s.queue_position}.`;
+
+                    if (s.status === "admitted") {
+                        badgeClass = "badge-admitted";
+                        statusTitle = "🎉 Admission Confirmed!";
+                        statusDesc = `Seat ${s.seat_number} allocated in ${s.department} (${s.stream || 'Aided'}). Allocated on: ${s.allocated_at || "Today"}`;
+                    } else if (s.status === "rejected") {
+                        badgeClass = "badge-rejected";
+                        statusTitle = "Application Not Accepted";
+                        statusDesc = "Application did not meet cutoff criteria or was declined by admission committee.";
+                    }
+
+                    display.innerHTML = `
+                        <div class="status-card-inner ${s.status}">
+                            <div class="status-top">
+                                <div>
+                                    <span class="app-id-badge">${s.app_no || ('ID #' + s.id)}</span>
+                                    <span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span>
+                                    <h4>${s.name}</h4>
+                                </div>
+                                <span class="badge ${badgeClass}">${s.status.toUpperCase()}</span>
+                            </div>
+
+                            <div class="status-details-grid">
+                                <div>
+                                    <label>Program & Stream:</label>
+                                    <p><strong>${s.department}</strong></p>
+                                </div>
+                                <div>
+                                    <label>12th Board Marks:</label>
+                                    <p><strong>${s.marks}%</strong></p>
+                                </div>
+                                <div>
+                                    <label>Queue Position:</label>
+                                    <p><strong>${s.current_queue_position ? '#' + s.current_queue_position : (s.status === 'admitted' ? 'Admitted' : 'Completed')}</strong></p>
+                                </div>
+                                <div>
+                                    <label>Seat Allocation:</label>
+                                    <p><strong>${s.seat_number ? 'Seat ' + s.seat_number : 'Pending Selection'}</strong></p>
+                                </div>
+                            </div>
+
+                            <!-- Visual Step Progress Tracker -->
+                            <div class="stepper">
+                                <div class="step step-done">
+                                    <div class="circle">1</div>
+                                    <span>Submitted</span>
+                                </div>
+                                <div class="step ${s.status === 'pending' || s.status === 'admitted' ? 'step-done' : ''}">
+                                    <div class="circle">2</div>
+                                    <span>In Queue</span>
+                                </div>
+                                <div class="step ${s.status === 'admitted' || s.status === 'rejected' ? 'step-done' : (s.status === 'pending' ? 'step-active' : '')}">
+                                    <div class="circle">3</div>
+                                    <span>Evaluation</span>
+                                </div>
+                                <div class="step ${s.status === 'admitted' ? 'step-done' : (s.status === 'rejected' ? 'step-rejected' : '')}">
+                                    <div class="circle">4</div>
+                                    <span>${s.status === 'admitted' ? 'Admitted' : (s.status === 'rejected' ? 'Rejected' : 'Seat Allotment')}</span>
+                                </div>
+                            </div>
+
+                            <div class="status-message">
+                                <strong>${statusTitle}</strong>
+                                <p>${statusDesc}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    display.innerHTML = `
+                        <div class="status-alert alert-danger">
+                            ${data.error || "No student found with this Application Number."}
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                display.innerHTML = `
+                    <div class="status-alert alert-danger">
+                        Failed to fetch status. Check network connection.
+                    </div>
+                `;
+            }
+        }
+
+        // Initial fetch
+        loadCourses();
+    </script>
+</body>
+</html>
