@@ -102,5 +102,60 @@ class TestDSAProject(unittest.TestCase):
         self.assertGreater(len(aided), 0)
         self.assertGreater(len(sfs), 0)
 
+    def test_subject_queue_manager_fifo(self):
+        from dsa_structures import SubjectQueueManager
+        sqm = SubjectQueueManager()
+        sqm.enqueue('BSC-CS-AID', {'id': 101, 'name': 'Karthik'})
+        sqm.enqueue('BSC-CS-AID', {'id': 102, 'name': 'Siddharth'})
+        sqm.enqueue('BCOM-AF', {'id': 103, 'name': 'Priya'})
+
+        self.assertEqual(sqm.size('BSC-CS-AID'), 2)
+        self.assertEqual(sqm.size('BCOM-AF'), 1)
+        self.assertEqual(sqm.total_waiting(), 3)
+
+        first_cs = sqm.dequeue('BSC-CS-AID')
+        self.assertEqual(first_cs['name'], 'Karthik')
+        self.assertEqual(sqm.size('BSC-CS-AID'), 1)
+
+    def test_six_marks_application_and_percentage(self):
+        import uuid
+        payload = {
+            'name': 'Gautam Natarajan',
+            'email': f'gautam.{uuid.uuid4().hex[:8]}@example.com',
+            'phone': '9840123987',
+            'department': 'B.Sc Computer Science',
+            'stream': 'Aided',
+            'm1': 95.0,
+            'm2': 90.0,
+            'm3': 92.0,
+            'm4': 98.0,
+            'm5': 94.0,
+            'm6': 91.0,
+            'gender': 'Male'
+        }
+        res = self.app.post('/api/apply', data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['marks_total'], 560.0)
+        self.assertAlmostEqual(data['marks'], 93.33, places=1)
+        self.assertEqual(data['course_code'], 'BSC-CS-AID')
+
+    def test_certificate_verification(self):
+        students = models.get_all_students()
+        self.assertGreater(len(students), 0)
+        target_id = students[0]['id']
+
+        res = self.app.post(f'/api/student/{target_id}/verify-cert', data=json.dumps({
+            'status': 'verified',
+            'remarks': 'SSLC, HSC, TC, Community approved'
+        }), content_type='application/json')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.get_json()['cert_status'], 'verified')
+
+    def test_database_has_1000_plus_students(self):
+        all_s = models.get_all_students()
+        self.assertGreaterEqual(len(all_s), 1000)
+
 if __name__ == '__main__':
     unittest.main()

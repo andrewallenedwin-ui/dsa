@@ -37,7 +37,10 @@
             <div class="stat-box">
                 <span class="stat-label">Total College Seats</span>
                 <span id="totalSeats" class="stat-number">340</span>
-                <span class="stat-sub">Across 6 Arts & Science Depts</span>
+            <div class="stat-box">
+                <span class="stat-label">Total Applicants</span>
+                <span id="totalStudents" class="stat-number">1056+</span>
+                <span class="stat-sub">Central Admission Repository</span>
             </div>
 
             <div class="stat-box filled-box">
@@ -48,14 +51,20 @@
 
             <div class="stat-box available-box">
                 <span class="stat-label">Seats Remaining</span>
-                <span id="availableSeats" class="stat-number">340</span>
+                <span id="availableSeats" class="stat-number">0</span>
                 <span class="stat-sub">Currently Open for Allocation</span>
             </div>
 
             <div class="stat-box queue-box">
-                <span class="stat-label">Waiting in Queue</span>
+                <span class="stat-label">Waiting in Queues</span>
                 <span id="queueSize" class="stat-number">0</span>
-                <span class="stat-sub">FIFO Processing Pipeline</span>
+                <span class="stat-sub">Across 33 Department Queues</span>
+            </div>
+
+            <div class="stat-box cert-stat-box">
+                <span class="stat-label">Verified Documents</span>
+                <span id="verifiedCerts" class="stat-number">0</span>
+                <span class="stat-sub">Certificate Desk Cleared</span>
             </div>
 
             <div class="stat-box stack-box">
@@ -110,28 +119,36 @@
 
         <!-- MAIN DSA LAB: Interactive Queue & Stack Panels -->
         <div class="admin-grid">
-            <!-- DSA 1: Admission Queue (FIFO) -->
+            <!-- DSA 1: Admission Queue (FIFO) with Subject-Wise Queue Selector -->
             <section class="card dsa-card queue-container-card">
                 <div class="card-header">
                     <div class="card-icon queue-icon">⚡</div>
                     <div>
-                        <div class="dsa-badge badge-queue">FIFO &bull; O(1) Operations</div>
-                        <h2>Admission Queue (FIFO)</h2>
-                        <p class="small-text">First In, First Out: Applicant who submitted earliest is at the HEAD.</p>
+                        <div class="dsa-badge badge-queue">FIFO &bull; Dedicated Subject Queues</div>
+                        <h2>Department Admission Queue (FIFO)</h2>
+                        <p class="small-text">Each department has its own FIFO waitlist. Earliest applicant is at the HEAD.</p>
                     </div>
+                </div>
+
+                <!-- Subject Queue Switcher -->
+                <div class="subject-queue-selector-bar">
+                    <label for="adminQueueSubjectSelect"><strong>Select Academic Department Queue:</strong></label>
+                    <select id="adminQueueSubjectSelect" onchange="onSubjectQueueChange()">
+                        <option value="All">All Departments Queue (Global FIFO)</option>
+                    </select>
                 </div>
 
                 <div class="queue-control-bar">
                     <button class="btn btn-success btn-lg" onclick="admitNextStudent()">
-                        <span>Admit Next Student &bull; dequeue()</span>
+                        <span id="admitBtnText">Admit Next in Queue &bull; dequeue()</span>
                     </button>
-                    <span class="method-call">Time Complexity: O(1)</span>
+                    <span class="method-call" id="activeQueueStats">Queue: Global FIFO</span>
                 </div>
 
                 <!-- Visual Queue Pipeline Diagram -->
                 <div class="pipeline-header">
-                    <span class="pipeline-tag head-tag">HEAD (Front / Next Out)</span>
-                    <span class="pipeline-tag tail-tag">TAIL (Rear / New Entry)</span>
+                    <span class="pipeline-tag head-tag">HEAD (Next Candidate to Admit)</span>
+                    <span class="pipeline-tag tail-tag">TAIL (Most Recent Applicant)</span>
                 </div>
                 <div id="visualQueue" class="visual-queue-track">
                     <p class="loading-text">Loading admission queue...</p>
@@ -139,8 +156,8 @@
 
                 <div class="dsa-explainer">
                     <strong>DSA Mechanism:</strong>
-                    <code>enqueue(student)</code> appends to the tail when student applies. 
-                    <code>dequeue()</code> pops from the head, allocating a confirmed course-specific seat.
+                    Each academic course maintains an independent <code>AdmissionQueue</code> FIFO pipeline. 
+                    <code>dequeue()</code> pops from the head of the chosen department, assigning a verified seat number.
                 </div>
             </section>
 
@@ -265,49 +282,126 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </section>
-
-        <!-- All Student Applications Database Table -->
+            <        <!-- All Student Applications Database Table (1000+ Records) -->
         <section class="card wide-card">
             <div class="card-header">
                 <div class="card-icon">📁</div>
                 <div>
-                    <h2>All Student Applications (SQLite Database)</h2>
-                    <p class="small-text">Complete persistent repository of all applicant records.</p>
-                </div>
-                <div class="table-search-bar">
-                    <input type="text" id="tableSearchInput" placeholder="Search by name, App No, or department..." oninput="filterStudentTable()">
+                    <h2>Central Student Repository (1,000+ Applicants)</h2>
+                    <p class="small-text">Comprehensive applicant database across 33 Arts & Science programs.</p>
                 </div>
             </div>
 
-            <div class="table-container">
+            <!-- Multi-Filter Control Bar -->
+            <div class="table-filter-bar">
+                <div class="filter-item search-grow">
+                    <label for="tableSearchInput">Live Search:</label>
+                    <input type="text" id="tableSearchInput" placeholder="Search by name, App No, department, or phone..." oninput="filterStudentTable()">
+                </div>
+                <div class="filter-item">
+                    <label for="tableStreamFilter">Stream:</label>
+                    <select id="tableStreamFilter" onchange="filterStudentTable()">
+                        <option value="All">All Streams</option>
+                        <option value="Aided">Aided</option>
+                        <option value="SFS">SFS</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="tableStatusFilter">Status:</label>
+                    <select id="tableStatusFilter" onchange="filterStudentTable()">
+                        <option value="All">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="admitted">Admitted</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="tableCertFilter">Certificate Status:</label>
+                    <select id="tableCertFilter" onchange="filterStudentTable()">
+                        <option value="All">All Certificates</option>
+                        <option value="verified">Verified</option>
+                        <option value="pending">Pending Verification</option>
+                        <option value="flagged">Flagged / Action Needed</option>
+                    </select>
+                </div>
+                <div class="filter-item count-item">
+                    <span id="filteredCountText" class="badge-count">Showing 1056 applicants</span>
+                </div>
+            </div>
+
+            <div class="table-container max-h-table">
                 <table class="table-modern">
                     <thead>
                         <tr>
                             <th>App No</th>
                             <th>Student Name</th>
-                            <th>Stream</th>
-                            <th>Department</th>
-                            <th>12th Marks</th>
+                            <th>Program & Stream</th>
+                            <th>HSC Marks (6-Subj / Total)</th>
+                            <th>Certificates</th>
                             <th>Status</th>
-                            <th>Queue Position</th>
-                            <th>Seat Allotment</th>
+                            <th>Queue / Seat</th>
                             <th>Admin Actions</th>
                         </tr>
                     </thead>
                     <tbody id="studentTable">
                         <tr>
-                            <td colspan="9" class="text-center">Loading student applications...</td>
+                            <td colspan="8" class="text-center">Loading applicant repository...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <footer class="footer">
-            <p><strong>ABC College of Arts & Science &bull; Master Admission Dashboard</strong></p>
-            <p>Data Structures and Algorithms ICA 2 Project &bull; Queue (FIFO) &bull; Stack (LIFO) &bull; Selection Sort</p>
+        <!-- Certificate Verification Desk Modal -->
+        <div id="certModal" class="modal-backdrop hidden">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3>📋 Document & Certificate Verification Desk</h3>
+                    <button class="modal-close-btn" onclick="closeCertModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="certModalBody">
+                    <p class="loading-text">Loading applicant documents...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Official College Helpdesk & Contact Section -->
+        <footer class="college-contact-section">
+            <div class="contact-grid">
+                <div class="contact-col info-col">
+                    <div class="footer-brand">
+                        <span class="f-crest">🏛️</span>
+                        <div>
+                            <h3>ABC College of Arts and Science</h3>
+                            <p class="accreditation">Autonomous Institution &bull; Affiliated to University of Madras<br>Re-accredited with 'A+' Grade by NAAC &bull; AISHE: C-43950</p>
+                        </div>
+                    </div>
+                    <p class="college-motto">"Empowering youth through character, academic excellence, and real-world innovation since 1978."</p>
+                    <div class="cert-trust-badges">
+                        <span class="trust-badge">NAAC A+</span>
+                        <span class="trust-badge">UGC Autonomous</span>
+                        <span class="trust-badge">ISO 9001:2015</span>
+                    </div>
+                </div>
+
+                <div class="contact-col">
+                    <h4>Admission Helpdesk & Office</h4>
+                    <p class="addr-line">📍 <strong>Campus Location:</strong><br>Velachery Main Road, East Tambaram, Chennai - 600 059, Tamil Nadu, India.</p>
+                    <p class="hours-line">🕒 <strong>Office Working Hours:</strong><br>Monday – Saturday: 09:00 AM – 05:00 PM IST<br><small class="muted-note">(Closed on Sundays & Gazetted Public Holidays)</small></p>
+                </div>
+
+                <div class="contact-col">
+                    <h4>Direct Inquiries & Helplines</h4>
+                    <p>📞 <strong>Admission Office:</strong> +91 (044) 2239 0675 / +91 (044) 2239 6772</p>
+                    <p>💬 <strong>WhatsApp Query Desk:</strong> +91 98401 23456</p>
+                    <p>✉️ <strong>Admission Inquiries:</strong> <a href="mailto:admissions@abccollege.edu.in">admissions@abccollege.edu.in</a></p>
+                    <p>🛡️ <strong>Student Grievance Cell:</strong> <a href="mailto:grievance@abccollege.edu.in">grievance@abccollege.edu.in</a></p>
+                </div>
+            </div>
+
+            <div class="contact-bottom-bar">
+                <p>&copy; 2026 ABC College of Arts & Science. All Rights Reserved. &bull; Online Admission & Department Queue System (DSA ICA-2 Component)</p>
+            </div>
         </footer>
     </div>
 
@@ -319,10 +413,11 @@
         let allAdminCourses = [];
         let allStudentsList = [];
         let currentMasterStream = 'All';
+        let currentActiveQueueCourse = 'All';
 
         document.addEventListener("DOMContentLoaded", () => {
             refreshAll();
-            setInterval(refreshAll, 10000);
+            setInterval(refreshAll, 12000);
         });
 
         async function refreshAll() {
@@ -343,14 +438,78 @@
                 document.getElementById("stackSize").textContent = data.stack_size;
                 document.getElementById("lastUpdated").textContent = data.time;
 
+                if (document.getElementById("totalStudents")) {
+                    document.getElementById("totalStudents").textContent = data.total_students || "1056+";
+                }
+                if (document.getElementById("verifiedCerts")) {
+                    document.getElementById("verifiedCerts").textContent = data.total_verified || 0;
+                }
+
                 allAdminCourses = data.courses;
                 populateAdminSortCourses();
+                populateSubjectQueueDropdown(data.courses, data.subject_queues || {});
                 renderHourlyChart(data.hourly_stats);
                 renderCourseBreakdown(data.courses);
-                renderVisualQueue(data.queue_items);
+
+                if (currentActiveQueueCourse === 'All') {
+                    renderVisualQueue(data.queue_items);
+                } else {
+                    loadSubjectQueue(currentActiveQueueCourse);
+                }
+
                 renderVisualStack(data.recent_actions);
             } catch (err) {
                 console.error("Dashboard error:", err);
+            }
+        }
+
+        function populateSubjectQueueDropdown(courses, queuesSummary) {
+            const select = document.getElementById("adminQueueSubjectSelect");
+            if (!select) return;
+            const currentVal = select.value;
+
+            let totalInQueues = Object.values(queuesSummary).reduce((a, b) => a + b, 0);
+            let html = `<option value="All">All Departments Queue (Global FIFO &bull; ${totalInQueues} waiting)</option>`;
+
+            courses.forEach(c => {
+                const count = queuesSummary[c.code] || 0;
+                html += `<option value="${c.code}">[${c.code}] ${c.name} (${c.stream}) — ${count} in queue</option>`;
+            });
+
+            select.innerHTML = html;
+            if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+                select.value = currentVal;
+            }
+        }
+
+        async function onSubjectQueueChange() {
+            const select = document.getElementById("adminQueueSubjectSelect");
+            currentActiveQueueCourse = select.value;
+            const statsLabel = document.getElementById("activeQueueStats");
+            const admitBtn = document.getElementById("admitBtnText");
+
+            if (currentActiveQueueCourse === 'All') {
+                statsLabel.textContent = "Queue: Global FIFO Pipeline";
+                admitBtn.textContent = "Admit Next in Queue • dequeue()";
+                const res = await fetch("/api/dashboard");
+                const data = await res.json();
+                if (data.success) renderVisualQueue(data.queue_items);
+            } else {
+                statsLabel.textContent = `Queue: ${currentActiveQueueCourse} FIFO`;
+                admitBtn.textContent = `Admit Next in ${currentActiveQueueCourse} Queue • dequeue()`;
+                loadSubjectQueue(currentActiveQueueCourse);
+            }
+        }
+
+        async function loadSubjectQueue(courseCode) {
+            try {
+                const res = await fetch(`/api/queue/${encodeURIComponent(courseCode)}`);
+                const data = await res.json();
+                if (data.success) {
+                    renderVisualQueue(data.students);
+                }
+            } catch (err) {
+                console.error("Error loading subject queue:", err);
             }
         }
 
@@ -433,7 +592,7 @@
                         <span class="cp-name">
                             <span class="stream-tag stream-${c.stream.toLowerCase()}">${c.stream}</span>
                             <strong>${c.name}</strong> 
-                            <small class="text-muted">(${c.category})</small>
+                            <small class="text-muted">(${c.code})</small>
                         </span>
                         <span class="cp-seats"><strong>${c.filled_seats}</strong> / ${c.total_seats} filled (${c.available_seats} remaining)</span>
                     </div>
@@ -452,7 +611,7 @@
                 container.innerHTML = `
                     <div class="queue-empty-box">
                         <span class="icon">✨</span>
-                        <p>Admission Queue is empty! All submitted applications have been processed.</p>
+                        <p>This department admission queue is currently empty.</p>
                     </div>
                 `;
                 return;
@@ -462,13 +621,14 @@
                 const isHead = idx === 0;
                 return `
                     <div class="queue-node ${isHead ? 'is-head-node' : ''}">
-                        ${isHead ? '<div class="head-marker">NEXT OUT</div>' : ''}
+                        ${isHead ? '<div class="head-marker">NEXT IN QUEUE</div>' : ''}
                         <div class="q-pos">#${idx + 1}</div>
                         <div class="q-info">
                             <span class="app-code">${s.app_no || ('ID #' + s.id)}</span>
                             <strong>${s.name}</strong>
                             <small><span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span> ${s.department}</small>
-                            <span class="q-marks">${s.marks}%</span>
+                            <span class="q-marks">${s.marks}% <small>(${s.marks_total || (s.marks * 6).toFixed(0)}/600)</small></span>
+                            <span class="cert-micro-badge cert-${s.cert_status || 'pending'}">${s.cert_status === 'verified' ? '✓ Docs Verified' : (s.cert_status === 'flagged' ? '⚠ Docs Flagged' : '⏳ Pending Check')}</span>
                         </div>
                     </div>
                 `;
@@ -490,7 +650,7 @@
                     <div class="stack-plate ${act.type.toLowerCase()} ${isTop ? 'is-top-plate' : ''}">
                         ${isTop ? '<span class="top-tag">TOP</span>' : ''}
                         <div class="plate-main">
-                            <span class="plate-type badge badge-${act.type === 'ADMIT' ? 'admitted' : 'rejected'}">${act.type}</span>
+                            <span class="plate-type badge badge-${act.type === 'ADMIT' ? 'admitted' : (act.type === 'REJECT' ? 'rejected' : 'primary')}">${act.type}</span>
                             <div>
                                 <strong>${act.student_name || 'Student #' + act.student_id}</strong>
                                 <small class="text-muted">(${act.app_no || '#' + act.student_id})</small>
@@ -509,7 +669,7 @@
                 const data = await res.json();
                 if (data.success) {
                     allStudentsList = data.students;
-                    renderStudentTableRows(allStudentsList);
+                    filterStudentTable();
                 }
             } catch (err) {
                 console.error("Load students error:", err);
@@ -518,52 +678,204 @@
 
         function renderStudentTableRows(students) {
             const tableBody = document.getElementById("studentTable");
+            const countText = document.getElementById("filteredCountText");
+            if (countText) countText.textContent = `Showing ${students.length} of ${allStudentsList.length} applicants`;
+
             if (!students || students.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="9" class="text-center">No student applications found.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center">No matching applicants found.</td></tr>`;
                 return;
             }
 
-            tableBody.innerHTML = students.map(s => `
-                <tr>
-                    <td><strong class="font-mono">${s.app_no || ('#' + s.id)}</strong></td>
-                    <td><strong>${s.name}</strong></td>
-                    <td><span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span></td>
-                    <td>${s.department}</td>
-                    <td><strong class="marks-text">${s.marks}%</strong></td>
-                    <td><span class="badge badge-${s.status}">${s.status.toUpperCase()}</span></td>
-                    <td>${s.status === 'pending' ? '#' + s.queue_position : '-'}</td>
-                    <td>${s.seat_number ? '<span class="seat-badge">' + s.seat_number + '</span>' : '<span class="text-muted">-</span>'}</td>
-                    <td>
-                        ${s.status === 'pending' ? `
-                            <button class="btn-action btn-danger" onclick="rejectStudent(${s.id})">Reject</button>
-                        ` : `<span class="text-muted">Processed</span>`}
-                    </td>
-                </tr>
-            `).join("");
+            // Slice to first 150 if large to maintain smooth browser responsiveness
+            const displayList = students.slice(0, 150);
+
+            tableBody.innerHTML = displayList.map(s => {
+                let certBadgeClass = "badge-pending-cert";
+                let certText = "⏳ Pending";
+                if (s.cert_status === "verified") {
+                    certBadgeClass = "badge-verified";
+                    certText = "✅ Verified";
+                } else if (s.cert_status === "flagged") {
+                    certBadgeClass = "badge-flagged";
+                    certText = "⚠️ Flagged";
+                }
+
+                return `
+                    <tr>
+                        <td><strong class="font-mono">${s.app_no || ('#' + s.id)}</strong></td>
+                        <td><strong>${s.name}</strong></td>
+                        <td>
+                            <span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span>
+                            <small class="d-block">${s.department}</small>
+                        </td>
+                        <td>
+                            <strong class="marks-text">${s.marks}%</strong>
+                            <small class="d-block text-muted">Total: ${s.marks_total || (s.marks * 6).toFixed(1)}/600</small>
+                        </td>
+                        <td>
+                            <button class="cert-btn ${certBadgeClass}" onclick="openCertModal(${s.id})" title="Click to review / verify certificates">
+                                ${certText}
+                            </button>
+                        </td>
+                        <td><span class="badge badge-${s.status}">${s.status.toUpperCase()}</span></td>
+                        <td>
+                            ${s.status === 'pending' ? '<span class="q-pill">Queue #' + (s.queue_position || '-') + '</span>' : ''}
+                            ${s.seat_number ? '<span class="seat-badge">' + s.seat_number + '</span>' : ''}
+                            ${s.status === 'rejected' ? '<span class="text-muted">Declined</span>' : ''}
+                        </td>
+                        <td>
+                            <div class="action-btn-group">
+                                <button class="btn-action btn-sm btn-info" onclick="openCertModal(${s.id})" title="Inspect Certificates">Docs</button>
+                                ${s.status === 'pending' ? `
+                                    <button class="btn-action btn-sm btn-danger" onclick="rejectStudent(${s.id})">Reject</button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
         }
 
         function filterStudentTable() {
-            const term = document.getElementById("tableSearchInput").value.trim().toLowerCase();
-            if (!term) {
-                renderStudentTableRows(allStudentsList);
-                return;
+            const term = (document.getElementById("tableSearchInput") ? document.getElementById("tableSearchInput").value.trim().toLowerCase() : "");
+            const stream = (document.getElementById("tableStreamFilter") ? document.getElementById("tableStreamFilter").value : "All");
+            const status = (document.getElementById("tableStatusFilter") ? document.getElementById("tableStatusFilter").value : "All");
+            const cert = (document.getElementById("tableCertFilter") ? document.getElementById("tableCertFilter").value : "All");
+
+            let filtered = allStudentsList;
+
+            if (term) {
+                filtered = filtered.filter(s => 
+                    (s.name && s.name.toLowerCase().includes(term)) ||
+                    (s.app_no && s.app_no.toLowerCase().includes(term)) ||
+                    (s.department && s.department.toLowerCase().includes(term)) ||
+                    (s.phone && s.phone.includes(term))
+                );
             }
-            const filtered = allStudentsList.filter(s => 
-                (s.name && s.name.toLowerCase().includes(term)) ||
-                (s.app_no && s.app_no.toLowerCase().includes(term)) ||
-                (s.department && s.department.toLowerCase().includes(term)) ||
-                (s.stream && s.stream.toLowerCase().includes(term))
-            );
+
+            if (stream !== "All") {
+                filtered = filtered.filter(s => s.stream === stream);
+            }
+
+            if (status !== "All") {
+                filtered = filtered.filter(s => s.status === status);
+            }
+
+            if (cert !== "All") {
+                filtered = filtered.filter(s => s.cert_status === cert);
+            }
+
             renderStudentTableRows(filtered);
+        }
+
+        // Certificate Verification Desk Modal
+        function openCertModal(studentId) {
+            const s = allStudentsList.find(item => item.id === studentId);
+            if (!s) return;
+
+            const modal = document.getElementById("certModal");
+            const body = document.getElementById("certModalBody");
+
+            body.innerHTML = `
+                <div class="cert-modal-content">
+                    <div class="applicant-header">
+                        <div>
+                            <h4>${s.name}</h4>
+                            <span class="app-id-badge">${s.app_no || '#' + s.id}</span>
+                            <span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span> &bull; ${s.department}
+                        </div>
+                        <span class="badge badge-${s.status}">${s.status.toUpperCase()}</span>
+                    </div>
+
+                    <!-- 6 Subject Marks Overview -->
+                    <div class="modal-section">
+                        <h5>HSC +2 Subject Marks Record (Aggregate: ${s.marks}%)</h5>
+                        <div class="modal-marks-grid">
+                            <div class="m-box"><span>1. Language</span><strong>${s.m1 || '-'}</strong></div>
+                            <div class="m-box"><span>2. English</span><strong>${s.m2 || '-'}</strong></div>
+                            <div class="m-box"><span>3. Core 1</span><strong>${s.m3 || '-'}</strong></div>
+                            <div class="m-box"><span>4. Core 2</span><strong>${s.m4 || '-'}</strong></div>
+                            <div class="m-box"><span>5. Core 3</span><strong>${s.m5 || '-'}</strong></div>
+                            <div class="m-box"><span>6. Core 4</span><strong>${s.m6 || '-'}</strong></div>
+                        </div>
+                        <div class="m-total-line">
+                            <strong>Total Mark: ${s.marks_total || (s.marks * 6).toFixed(1)} / 600</strong> &bull; 
+                            <strong>Calculated Percentage: ${s.marks}%</strong>
+                        </div>
+                    </div>
+
+                    <!-- Document Verification Checklist -->
+                    <div class="modal-section">
+                        <h5>Submitted Original Certificate Checklist:</h5>
+                        <div class="doc-checklist-view">
+                            <div class="doc-item verified"><span>✓</span> 10th Standard (SSLC) Original Marksheet</div>
+                            <div class="doc-item verified"><span>✓</span> 12th Standard (HSC) Marksheet & Hall Ticket</div>
+                            <div class="doc-item verified"><span>✓</span> Transfer Certificate (TC) & Conduct Certificate</div>
+                            <div class="doc-item verified"><span>✓</span> Community / Category Certificate</div>
+                        </div>
+                    </div>
+
+                    <div class="modal-section">
+                        <h5>Current Verification Status:</h5>
+                        <p>Status: <strong class="text-uppercase">${s.cert_status || 'Pending'}</strong></p>
+                        <p class="small-subtext">${s.cert_remarks || 'Awaiting admission desk verification.'}</p>
+                    </div>
+
+                    <div class="modal-action-bar">
+                        <button class="btn btn-success" onclick="updateCertStatus(${s.id}, 'verified')">
+                            ✅ Approve & Mark Verified
+                        </button>
+                        <button class="btn btn-warning" onclick="updateCertStatus(${s.id}, 'flagged')">
+                            ⚠️ Flag for Document Re-upload
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeCertModal()">
+                            Close Desk
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove("hidden");
+        }
+
+        function closeCertModal() {
+            const modal = document.getElementById("certModal");
+            if (modal) modal.classList.add("hidden");
+        }
+
+        async function updateCertStatus(studentId, status) {
+            try {
+                const remarks = status === 'verified' ? 'All 4 original certificates verified by admission officer' : 'Certificate copy illegible, resubmission requested';
+                const res = await fetch(`/api/student/${studentId}/verify-cert`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: status, remarks: remarks })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`✅ ${data.message}`);
+                    closeCertModal();
+                    refreshAll();
+                } else {
+                    alert(`⚠️ ${data.error}`);
+                }
+            } catch (err) {
+                alert("Could not update certificate status.");
+            }
         }
 
         async function admitNextStudent() {
             try {
-                const res = await fetch("/api/admit-next", { method: "POST" });
+                let url = "/api/admit-next";
+                if (currentActiveQueueCourse && currentActiveQueueCourse !== 'All') {
+                    url += `?course_code=${encodeURIComponent(currentActiveQueueCourse)}`;
+                }
+
+                const res = await fetch(url, { method: "POST" });
                 const result = await res.json();
 
                 if (result.success) {
-                    alert(`✅ ${result.message}\nAllotted Seat Number: ${result.seat_number}`);
+                    alert(`✅ ${result.message}\nAllocated Seat: ${result.seat_number}`);
                     refreshAll();
                 } else {
                     alert(`⚠️ ${result.error}`);
@@ -632,7 +944,7 @@
                         <td><strong>${s.name}</strong></td>
                         <td><span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span></td>
                         <td>${s.department}</td>
-                        <td><strong class="marks-text">${s.marks}%</strong></td>
+                        <td><strong class="marks-text">${s.marks}%</strong> <small>(${s.marks_total || (s.marks * 6).toFixed(0)}/600)</small></td>
                         <td><span class="badge badge-${s.status}">${s.status.toUpperCase()}</span></td>
                     </tr>
                 `).join("");
@@ -731,4 +1043,4 @@
         runSelectionSort(false);
     </script>
 </body>
-</html>
+</html>

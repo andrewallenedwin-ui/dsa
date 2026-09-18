@@ -104,13 +104,75 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="marks">12th Standard Board Marks Percentage (%) <span class="req">*</span></label>
-                        <div class="input-with-suffix">
-                            <input type="number" id="marks" min="35" max="100" step="0.01" required placeholder="e.g. 89.5">
-                            <span class="input-suffix">%</span>
+                    <!-- 6 HSC Marks Entry & Live Average Calculator -->
+                    <div class="form-section-title">
+                        <h4>12th Standard Subject Marks (Out of 100 each)</h4>
+                        <span class="sub-hint">Enter marks for all 6 subjects. Total & Percentage will calculate automatically.</span>
+                    </div>
+
+                    <div class="marks-6-grid">
+                        <div class="form-group mark-item">
+                            <label for="m1">1. Language (Part I) <span class="req">*</span></label>
+                            <input type="number" id="m1" min="0" max="100" step="0.5" required placeholder="Tamil / Hindi" oninput="recalcMarks()">
                         </div>
-                        <small class="hint-text">Used for Merit Ranking via Selection Sort algorithm</small>
+                        <div class="form-group mark-item">
+                            <label for="m2">2. English (Part II) <span class="req">*</span></label>
+                            <input type="number" id="m2" min="0" max="100" step="0.5" required placeholder="English" oninput="recalcMarks()">
+                        </div>
+                        <div class="form-group mark-item">
+                            <label for="m3">3. Major Core 1 <span class="req">*</span></label>
+                            <input type="number" id="m3" min="0" max="100" step="0.5" required placeholder="Maths / Accounts" oninput="recalcMarks()">
+                        </div>
+                        <div class="form-group mark-item">
+                            <label for="m4">4. Major Core 2 <span class="req">*</span></label>
+                            <input type="number" id="m4" min="0" max="100" step="0.5" required placeholder="Physics / Commerce" oninput="recalcMarks()">
+                        </div>
+                        <div class="form-group mark-item">
+                            <label for="m5">5. Major Core 3 <span class="req">*</span></label>
+                            <input type="number" id="m5" min="0" max="100" step="0.5" required placeholder="Chemistry / Econ" oninput="recalcMarks()">
+                        </div>
+                        <div class="form-group mark-item">
+                            <label for="m6">6. Elective / Core 4 <span class="req">*</span></label>
+                            <input type="number" id="m6" min="0" max="100" step="0.5" required placeholder="CS / Stats / BM" oninput="recalcMarks()">
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Live Calculation Banner -->
+                    <div class="marks-summary-banner">
+                        <div class="sum-box">
+                            <span class="lbl">HSC Total Marks</span>
+                            <div class="val"><strong id="calcTotal">0.0</strong> <small>/ 600</small></div>
+                        </div>
+                        <div class="sum-box highlight">
+                            <span class="lbl">Aggregate Percentage</span>
+                            <div class="val"><strong id="calcAvg">0.00</strong> <small>%</small></div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="marks" name="marks" value="0">
+
+                    <!-- Certificate Verification Checklist -->
+                    <div class="form-section-title">
+                        <h4>Certificate Verification & Document Submission</h4>
+                        <span class="sub-hint">Original certificates required for physical and online desk verification</span>
+                    </div>
+
+                    <div class="cert-checklist">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="doc_10" checked required>
+                            <span>10th Standard (SSLC) Original Marksheet</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="doc_12" checked required>
+                            <span>12th Standard (HSC) Original Marksheet</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="doc_tc" checked required>
+                            <span>Transfer Certificate (TC) & Conduct Certificate</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="doc_comm" checked>
+                            <span>Community / Category Certificate (if seeking quota)</span>
+                        </label>
                     </div>
 
                     <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
@@ -130,7 +192,7 @@
                             <strong id="receiptAppNo">ABC26-AID-0001</strong>
                         </div>
                         <div class="receipt-item">
-                            <span>Token ID & Queue Position:</span>
+                            <span>Department & Subject Queue:</span>
                             <span id="receiptQueue" class="badge badge-queue">#1</span>
                         </div>
                         <div class="receipt-item">
@@ -138,8 +200,12 @@
                             <span id="receiptDept">-</span>
                         </div>
                         <div class="receipt-item">
-                            <span>Submitted Marks:</span>
+                            <span>Total & Aggregate Marks:</span>
                             <span id="receiptMarks">-</span>
+                        </div>
+                        <div class="receipt-item">
+                            <span>Certificate Verification:</span>
+                            <span class="badge badge-pending-cert">Submitted (Pending Verification)</span>
                         </div>
                     </div>
                     <p class="receipt-note">💡 Please save your <strong>Alphanumeric Application No</strong>. You can check your real-time status in the portal at any time.</p>
@@ -188,12 +254,45 @@
                         <p class="loading-text">Loading courses data...</p>
                     </div>
                 </div>
-            </section>
-        </main>
+           </main>
 
-        <footer class="footer">
-            <p><strong>ABC College of Arts & Science &bull; Online Admission Portal</strong></p>
-            <p>Data Structures and Algorithms ICA 2 Project &bull; Queue (FIFO) &bull; Stack (LIFO) &bull; Selection Sort</p>
+        <!-- Official College Admission Office & Helpdesk Section -->
+        <footer class="college-contact-section">
+            <div class="contact-grid">
+                <div class="contact-col info-col">
+                    <div class="footer-brand">
+                        <span class="f-crest">🏛️</span>
+                        <div>
+                            <h3>ABC College of Arts and Science</h3>
+                            <p class="accreditation">Autonomous Institution &bull; Affiliated to University of Madras<br>Re-accredited with 'A+' Grade by NAAC &bull; AISHE: C-43950</p>
+                        </div>
+                    </div>
+                    <p class="college-motto">"Empowering youth through character, academic excellence, and real-world innovation since 1978."</p>
+                    <div class="cert-trust-badges">
+                        <span class="trust-badge">NAAC A+</span>
+                        <span class="trust-badge">UGC Autonomous</span>
+                        <span class="trust-badge">ISO 9001:2015</span>
+                    </div>
+                </div>
+
+                <div class="contact-col">
+                    <h4>Admission Helpdesk & Office</h4>
+                    <p class="addr-line">📍 <strong>Campus Location:</strong><br>Velachery Main Road, East Tambaram, Chennai - 600 059, Tamil Nadu, India.</p>
+                    <p class="hours-line">🕒 <strong>Office Working Hours:</strong><br>Monday – Saturday: 09:00 AM – 05:00 PM IST<br><small class="muted-note">(Closed on Sundays & Gazetted Public Holidays)</small></p>
+                </div>
+
+                <div class="contact-col">
+                    <h4>Direct Inquiries & Helplines</h4>
+                    <p>📞 <strong>Admission Office:</strong> +91 (044) 2239 0675 / +91 (044) 2239 6772</p>
+                    <p>💬 <strong>WhatsApp Query Desk:</strong> +91 98401 23456</p>
+                    <p>✉️ <strong>Admission Inquiries:</strong> <a href="mailto:admissions@abccollege.edu.in">admissions@abccollege.edu.in</a></p>
+                    <p>🛡️ <strong>Student Grievance Cell:</strong> <a href="mailto:grievance@abccollege.edu.in">grievance@abccollege.edu.in</a></p>
+                </div>
+            </div>
+
+            <div class="contact-bottom-bar">
+                <p>&copy; 2026 ABC College of Arts & Science. All Rights Reserved. &bull; Online Admission & Department Queue System (DSA ICA-2 Component)</p>
+            </div>
         </footer>
     </div>
 
@@ -281,6 +380,20 @@
             `).join("");
         }
 
+        // Live Dynamic 6-Marks Calculator
+        function recalcMarks() {
+            const ids = ["m1", "m2", "m3", "m4", "m5", "m6"];
+            let sum = 0;
+            ids.forEach(id => {
+                const val = parseFloat(document.getElementById(id).value) || 0;
+                sum += Math.min(100, Math.max(0, val));
+            });
+            const avg = sum / 6.0;
+            document.getElementById("calcTotal").textContent = sum.toFixed(1);
+            document.getElementById("calcAvg").textContent = avg.toFixed(2);
+            document.getElementById("marks").value = avg.toFixed(2);
+        }
+
         // Handle Application Submission
         async function handleApply(event) {
             event.preventDefault();
@@ -291,6 +404,23 @@
             const deptName = document.getElementById("department").value;
             const chosenCourse = allCoursesData.find(c => c.name === deptName);
 
+            const m1 = parseFloat(document.getElementById("m1").value) || 0;
+            const m2 = parseFloat(document.getElementById("m2").value) || 0;
+            const m3 = parseFloat(document.getElementById("m3").value) || 0;
+            const m4 = parseFloat(document.getElementById("m4").value) || 0;
+            const m5 = parseFloat(document.getElementById("m5").value) || 0;
+            const m6 = parseFloat(document.getElementById("m6").value) || 0;
+
+            const totalMarks = m1 + m2 + m3 + m4 + m5 + m6;
+            const avgMarks = roundTo2(totalMarks / 6.0);
+
+            const certDocs = {
+                marksheet_10: document.getElementById("doc_10").checked,
+                marksheet_12: document.getElementById("doc_12").checked,
+                tc: document.getElementById("doc_tc").checked,
+                community_cert: document.getElementById("doc_comm").checked
+            };
+
             const payload = {
                 name: document.getElementById("name").value.trim(),
                 gender: document.getElementById("gender").value,
@@ -298,11 +428,19 @@
                 phone: document.getElementById("phone").value.trim(),
                 department: deptName,
                 stream: chosenCourse ? chosenCourse.stream : "Aided",
-                marks: document.getElementById("marks").value
+                m1: m1,
+                m2: m2,
+                m3: m3,
+                m4: m4,
+                m5: m5,
+                m6: m6,
+                marks_total: totalMarks,
+                marks: avgMarks,
+                cert_docs: certDocs
             };
 
             btn.disabled = true;
-            btn.innerHTML = `<span>Submitting...</span>`;
+            btn.innerHTML = `<span>Enqueuing Application...</span>`;
 
             try {
                 const res = await fetch("/api/apply", {
@@ -315,9 +453,9 @@
                 if (result.success) {
                     // Show receipt
                     document.getElementById("receiptAppNo").textContent = result.app_no || ("#" + result.student_id);
-                    document.getElementById("receiptQueue").textContent = `Token #${result.student_id} (Queue Pos: #${result.queue_position})`;
+                    document.getElementById("receiptQueue").textContent = `Position #${result.queue_position} in ${result.course_code || deptName} Queue`;
                     document.getElementById("receiptDept").textContent = `${payload.department} [${payload.stream}]`;
-                    document.getElementById("receiptMarks").textContent = payload.marks + "%";
+                    document.getElementById("receiptMarks").textContent = `${result.marks_total} / 600 (${result.marks}%)`;
                     document.getElementById("receiptBox").classList.remove("hidden");
 
                     // Pre-fill status tracker with alphanumeric app_no
@@ -326,8 +464,12 @@
 
                     // Reset form fields
                     document.getElementById("applicationForm").reset();
+                    document.getElementById("calcTotal").textContent = "0.0";
+                    document.getElementById("calcAvg").textContent = "0.00";
+                    document.getElementById("marks").value = "0";
+
                     alertBox.className = "alert alert-success";
-                    alertBox.textContent = `Application enqueued successfully with Application No: ${result.app_no}!`;
+                    alertBox.textContent = `Application enqueued successfully into ${result.course_code} Queue with ID: ${result.app_no}!`;
                 } else {
                     alertBox.className = "alert alert-danger";
                     alertBox.textContent = result.error || "Failed to submit application.";
@@ -341,7 +483,11 @@
             }
         }
 
-        // Check Application Status (supports numeric ID or Alphanumeric App No)
+        function roundTo2(num) {
+            return Math.round((num + Number.EPSILON) * 100) / 100;
+        }
+
+        // Check Application Status
         async function checkStatus(forcedId) {
             const inputVal = forcedId || document.getElementById("searchAppId").value.trim();
             const display = document.getElementById("statusResult");
@@ -364,8 +510,8 @@
                 if (data.success && data.student) {
                     const s = data.student;
                     let badgeClass = "badge-pending";
-                    let statusTitle = "In Admission Queue (FIFO)";
-                    let statusDesc = `Currently waiting in queue at position #${s.current_queue_position || s.queue_position}.`;
+                    let statusTitle = "In Department Admission Queue (FIFO)";
+                    let statusDesc = `Currently waiting in ${s.department} (${s.course_code || 'Subject'}) queue at position #${s.current_subject_queue_position || s.current_queue_position || s.queue_position}.`;
 
                     if (s.status === "admitted") {
                         badgeClass = "badge-admitted";
@@ -377,59 +523,90 @@
                         statusDesc = "Application did not meet cutoff criteria or was declined by admission committee.";
                     }
 
+                    // Certificate Badge
+                    let certBadge = `<span class="badge badge-pending-cert">⏳ Pending Verification</span>`;
+                    if (s.cert_status === "verified") {
+                        certBadge = `<span class="badge badge-verified">✅ Documents Verified</span>`;
+                    } else if (s.cert_status === "flagged") {
+                        certBadge = `<span class="badge badge-flagged">⚠️ Action Needed: Resubmit Docs</span>`;
+                    }
+
                     display.innerHTML = `
                         <div class="status-card-inner ${s.status}">
                             <div class="status-top">
                                 <div>
                                     <span class="app-id-badge">${s.app_no || ('ID #' + s.id)}</span>
                                     <span class="stream-tag stream-${(s.stream || 'aided').toLowerCase()}">${s.stream || 'Aided'}</span>
+                                    <span class="course-code-tag">${s.course_code || ''}</span>
                                     <h4>${s.name}</h4>
                                 </div>
-                                <span class="badge ${badgeClass}">${s.status.toUpperCase()}</span>
+                                <div>
+                                    ${certBadge}
+                                    <span class="badge ${badgeClass}">${s.status.toUpperCase()}</span>
+                                </div>
                             </div>
 
                             <div class="status-details-grid">
                                 <div>
-                                    <label>Program & Stream:</label>
+                                    <label>Program & Department:</label>
                                     <p><strong>${s.department}</strong></p>
                                 </div>
                                 <div>
-                                    <label>12th Board Marks:</label>
-                                    <p><strong>${s.marks}%</strong></p>
+                                    <label>Aggregate HSC Percentage:</label>
+                                    <p><strong>${s.marks}%</strong> (${s.marks_total || (s.marks * 6).toFixed(1)} / 600)</p>
                                 </div>
                                 <div>
-                                    <label>Queue Position:</label>
-                                    <p><strong>${s.current_queue_position ? '#' + s.current_queue_position : (s.status === 'admitted' ? 'Admitted' : 'Completed')}</strong></p>
+                                    <label>Subject Queue Position:</label>
+                                    <p><strong>${s.current_subject_queue_position ? '#' + s.current_subject_queue_position + ' in ' + (s.course_code || 'Subject') : (s.status === 'admitted' ? 'Seat Confirmed' : 'Waiting in Queue')}</strong></p>
                                 </div>
                                 <div>
-                                    <label>Seat Allocation:</label>
-                                    <p><strong>${s.seat_number ? 'Seat ' + s.seat_number : 'Pending Selection'}</strong></p>
+                                    <label>Seat Number:</label>
+                                    <p><strong>${s.seat_number ? 'Seat ' + s.seat_number : 'Pending Selection Pass'}</strong></p>
                                 </div>
                             </div>
 
-                            <!-- Visual Step Progress Tracker -->
-                            <div class="stepper">
+                            <!-- 6 Subject Marks Breakdown Cards -->
+                            <div class="marks-breakdown-card">
+                                <label class="sub-hdr">Subject Marks Breakdown (HSC +2):</label>
+                                <div class="marks-pill-row">
+                                    <span class="m-pill">Lang: <strong>${s.m1 || '-'}</strong></span>
+                                    <span class="m-pill">Eng: <strong>${s.m2 || '-'}</strong></span>
+                                    <span class="m-pill">Core 1: <strong>${s.m3 || '-'}</strong></span>
+                                    <span class="m-pill">Core 2: <strong>${s.m4 || '-'}</strong></span>
+                                    <span class="m-pill">Core 3: <strong>${s.m5 || '-'}</strong></span>
+                                    <span class="m-pill">Core 4: <strong>${s.m6 || '-'}</strong></span>
+                                    <span class="m-pill total-pill">Total: <strong>${s.marks_total || '-'} / 600</strong></span>
+                                </div>
+                            </div>
+
+                            <!-- 5-Stage Visual Progress Stepper -->
+                            <div class="stepper stepper-5">
                                 <div class="step step-done">
                                     <div class="circle">1</div>
-                                    <span>Submitted</span>
+                                    <span>Applied</span>
+                                </div>
+                                <div class="step ${s.cert_status === 'verified' || s.status === 'admitted' ? 'step-done' : (s.cert_status === 'flagged' ? 'step-flagged' : 'step-active')}">
+                                    <div class="circle">2</div>
+                                    <span>Certificates</span>
                                 </div>
                                 <div class="step ${s.status === 'pending' || s.status === 'admitted' ? 'step-done' : ''}">
-                                    <div class="circle">2</div>
+                                    <div class="circle">3</div>
                                     <span>In Queue</span>
                                 </div>
                                 <div class="step ${s.status === 'admitted' || s.status === 'rejected' ? 'step-done' : (s.status === 'pending' ? 'step-active' : '')}">
-                                    <div class="circle">3</div>
+                                    <div class="circle">4</div>
                                     <span>Evaluation</span>
                                 </div>
                                 <div class="step ${s.status === 'admitted' ? 'step-done' : (s.status === 'rejected' ? 'step-rejected' : '')}">
-                                    <div class="circle">4</div>
-                                    <span>${s.status === 'admitted' ? 'Admitted' : (s.status === 'rejected' ? 'Rejected' : 'Seat Allotment')}</span>
+                                    <div class="circle">5</div>
+                                    <span>${s.status === 'admitted' ? 'Allotted' : (s.status === 'rejected' ? 'Declined' : 'Allotment')}</span>
                                 </div>
                             </div>
 
                             <div class="status-message">
                                 <strong>${statusTitle}</strong>
                                 <p>${statusDesc}</p>
+                                ${s.cert_remarks ? `<p class="cert-remarks">📋 <em>Document Officer Note: ${s.cert_remarks}</em></p>` : ''}
                             </div>
                         </div>
                     `;
@@ -453,4 +630,4 @@
         loadCourses();
     </script>
 </body>
-</html>
+</html>

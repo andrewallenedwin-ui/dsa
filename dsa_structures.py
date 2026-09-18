@@ -254,3 +254,75 @@ class SelectionSort:
             "time_complexity": "O(n²)",
             "space_complexity": "O(1) auxiliary"
         }
+
+
+class SubjectQueueManager:
+    """
+    Manages dedicated FIFO Admission Queues per academic department / subject.
+    Every course (e.g. BSC-CS-AID, BCOM-AF, BA-ENG-AID) has its own independent
+    AdmissionQueue ensuring fair, separate waitlists per course.
+    """
+
+    def __init__(self):
+        self._queues = {}  # { course_code: AdmissionQueue() }
+
+    def get_queue(self, course_code):
+        """Retrieve or initialize the FIFO AdmissionQueue for a given course code."""
+        if not course_code:
+            course_code = "GENERAL"
+        code_key = str(course_code).strip().upper()
+        if code_key not in self._queues:
+            self._queues[code_key] = AdmissionQueue()
+        return self._queues[code_key]
+
+    def enqueue(self, course_code, student_data):
+        """Enqueue a student into their specific department's queue."""
+        q = self.get_queue(course_code)
+        position = q.enqueue(student_data)
+        return position
+
+    def dequeue(self, course_code):
+        """Dequeue the next student from a specific department's queue."""
+        q = self.get_queue(course_code)
+        return q.dequeue()
+
+    def peek(self, course_code):
+        """Peek at the next student waiting in a specific department's queue."""
+        q = self.get_queue(course_code)
+        return q.peek()
+
+    def size(self, course_code):
+        """Return waiting count for a specific course."""
+        if not course_code or str(course_code).strip().upper() == "ALL":
+            return self.total_waiting()
+        return self.get_queue(course_code).size()
+
+    def total_waiting(self):
+        """Total number of students waiting across all subject queues."""
+        return sum(q.size() for q in self._queues.values())
+
+    def get_all(self, course_code=None):
+        """Get all students in a specific queue, or across all queues."""
+        if course_code and str(course_code).strip().upper() != "ALL":
+            return self.get_queue(course_code).get_all()
+        
+        all_students = []
+        for q in self._queues.values():
+            all_students.extend(q.get_all())
+        return all_students
+
+    def remove_by_id(self, student_id):
+        """Remove an applicant by ID from whichever subject queue they are in."""
+        removed = False
+        for q in self._queues.values():
+            if q.remove_by_id(student_id):
+                removed = True
+        return removed
+
+    def get_summary(self):
+        """Return a dictionary of {course_code: queue_size} for all active queues."""
+        return {code: q.size() for code, q in self._queues.items()}
+
+    def clear(self):
+        """Clear all subject queues."""
+        self._queues.clear()

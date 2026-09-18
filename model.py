@@ -80,13 +80,44 @@ def init_db():
             phone TEXT NOT NULL,
             department TEXT NOT NULL,
             stream TEXT DEFAULT 'Aided',
+            course_code TEXT DEFAULT '',
             marks REAL NOT NULL,
+            m1 REAL DEFAULT 0,
+            m2 REAL DEFAULT 0,
+            m3 REAL DEFAULT 0,
+            m4 REAL DEFAULT 0,
+            m5 REAL DEFAULT 0,
+            m6 REAL DEFAULT 0,
+            marks_total REAL DEFAULT 0,
             gender TEXT DEFAULT 'Not Specified',
             status TEXT DEFAULT 'pending',
             queue_position INTEGER,
+            cert_status TEXT DEFAULT 'pending',
+            cert_remarks TEXT DEFAULT '',
+            cert_docs TEXT DEFAULT '',
             application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # Migration check: ensure new columns exist if table was already created
+    cursor.execute("PRAGMA table_info(students)")
+    existing_cols = {col["name"] for col in cursor.fetchall()}
+    columns_to_add = [
+        ("m1", "REAL DEFAULT 0"),
+        ("m2", "REAL DEFAULT 0"),
+        ("m3", "REAL DEFAULT 0"),
+        ("m4", "REAL DEFAULT 0"),
+        ("m5", "REAL DEFAULT 0"),
+        ("m6", "REAL DEFAULT 0"),
+        ("marks_total", "REAL DEFAULT 0"),
+        ("course_code", "TEXT DEFAULT ''"),
+        ("cert_status", "TEXT DEFAULT 'pending'"),
+        ("cert_remarks", "TEXT DEFAULT ''"),
+        ("cert_docs", "TEXT DEFAULT ''")
+    ]
+    for col_name, col_def in columns_to_add:
+        if col_name not in existing_cols:
+            cursor.execute(f"ALTER TABLE students ADD COLUMN {col_name} {col_def}")
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS admissions (
@@ -150,7 +181,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-    # Seed demo applicants if table is empty or sparse
+    # Seed 1000+ demo applicants if database has fewer than 1000 students
     seed_demo_if_empty()
 
 
@@ -176,45 +207,120 @@ def seed_demo_if_empty():
     cursor.execute("SELECT COUNT(*) as count FROM students")
     count = cursor.fetchone()["count"]
 
-    if count < 10:
-        demo_cohort = [
-            {"name": "Aarav Sharma", "email": "aarav.sharma@example.com", "phone": "9840112345", "department": "B.Sc Computer Science", "stream": "Aided", "marks": 96.5, "gender": "Male"},
-            {"name": "Priya Ramanathan", "email": "priya.r@example.com", "phone": "9840223456", "department": "B.Com General", "stream": "Aided", "marks": 94.2, "gender": "Female"},
-            {"name": "Siddharth Menon", "email": "siddharth.m@example.com", "phone": "9840334567", "department": "B.Sc Data Science", "stream": "SFS", "marks": 91.0, "gender": "Male"},
-            {"name": "Kavitha Sundaram", "email": "kavitha.s@example.com", "phone": "9840445678", "department": "B.Sc Mathematics", "stream": "Aided", "marks": 95.0, "gender": "Female"},
-            {"name": "Rahul Verma", "email": "rahul.v@example.com", "phone": "9840556789", "department": "BBA Business Administration", "stream": "SFS", "marks": 83.5, "gender": "Male"},
-            {"name": "Ananya Iyer", "email": "ananya.iyer@example.com", "phone": "9840667890", "department": "B.A English", "stream": "Aided", "marks": 92.5, "gender": "Female"},
-            {"name": "Dinesh Kumar", "email": "dinesh.k@example.com", "phone": "9840778901", "department": "B.Sc Physics", "stream": "Aided", "marks": 79.5, "gender": "Male"},
-            {"name": "Sneha Patil", "email": "sneha.p@example.com", "phone": "9840889012", "department": "B.Com Accounting and Finance", "stream": "SFS", "marks": 89.0, "gender": "Female"},
-            {"name": "Vikramaditya Rao", "email": "vikram.rao@example.com", "phone": "9840990123", "department": "B.C.A Computer Applications", "stream": "SFS", "marks": 86.5, "gender": "Male"},
-            {"name": "Meera Nambiar", "email": "meera.n@example.com", "phone": "9840101234", "department": "B.Sc Psychology", "stream": "SFS", "marks": 93.0, "gender": "Female"},
-            {"name": "Rohan Deshmukh", "email": "rohan.d@example.com", "phone": "9840212345", "department": "B.Sc Chemistry", "stream": "Aided", "marks": 84.0, "gender": "Male"},
-            {"name": "Keerthana Natarajan", "email": "keerthana.n@example.com", "phone": "9840323456", "department": "B.Sc Visual Communication", "stream": "SFS", "marks": 88.5, "gender": "Female"},
-            {"name": "Gautam Chandran", "email": "gautam.c@example.com", "phone": "9840434567", "department": "B.A Political Science", "stream": "Aided", "marks": 77.0, "gender": "Male"},
-            {"name": "Swathi Balaji", "email": "swathi.b@example.com", "phone": "9840545678", "department": "B.Sc Microbiology", "stream": "SFS", "marks": 81.5, "gender": "Female"},
-            {"name": "Harish Venkatesh", "email": "harish.v@example.com", "phone": "9840656789", "department": "B.Com Professional Accounting", "stream": "SFS", "marks": 90.0, "gender": "Male"},
-            {"name": "Deepika Selvam", "email": "deepika.s@example.com", "phone": "9840767890", "department": "B.A Journalism", "stream": "SFS", "marks": 85.0, "gender": "Female"},
-            {"name": "Arjun Panicker", "email": "arjun.p@example.com", "phone": "9840878901", "department": "B.Sc Computer Science (SFS)", "stream": "SFS", "marks": 87.0, "gender": "Male"},
-            {"name": "Divya Krishnan", "email": "divya.k@example.com", "phone": "9840989012", "department": "B.A Tamil", "stream": "Aided", "marks": 82.0, "gender": "Female"},
-            {"name": "Karthik Subramanian", "email": "karthik.s@example.com", "phone": "9840090123", "department": "B.Sc Statistics", "stream": "Aided", "marks": 89.5, "gender": "Male"},
-            {"name": "Pavithra Mohan", "email": "pavithra.m@example.com", "phone": "9840111222", "department": "B.S.W Social Work", "stream": "Aided", "marks": 75.0, "gender": "Female"},
-            {"name": "Ashwin Raj", "email": "ashwin.r@example.com", "phone": "9840222333", "department": "B.Sc Botany", "stream": "Aided", "marks": 71.5, "gender": "Male"},
-            {"name": "Bhavani Sankar", "email": "bhavani.s@example.com", "phone": "9840333444", "department": "B.Sc Zoology", "stream": "Aided", "marks": 73.0, "gender": "Female"},
-            {"name": "Naveen Prasad", "email": "naveen.p@example.com", "phone": "9840444555", "department": "B.Sc Geography", "stream": "Aided", "marks": 69.5, "gender": "Male"},
-            {"name": "Sandhya Murali", "email": "sandhya.m@example.com", "phone": "9840555666", "department": "B.A Philosophy", "stream": "Aided", "marks": 68.0, "gender": "Female"},
-            {"name": "Manoj Kumar", "email": "manoj.k@example.com", "phone": "9840666777", "department": "B.Sc Physical Education", "stream": "Aided", "marks": 66.0, "gender": "Male"}
+    if count < 1000:
+        # Reset tables for clean 1000+ cohort generation
+        cursor.execute("DELETE FROM admissions")
+        cursor.execute("DELETE FROM admin_actions")
+        cursor.execute("DELETE FROM students")
+
+        first_names = [
+            "Aarav", "Aditi", "Akash", "Ananya", "Arjun", "Ashwin", "Bala", "Bhavani",
+            "Deepak", "Deepika", "Dinesh", "Divya", "Gautam", "Harish", "Ishwarya",
+            "Karthik", "Kavitha", "Keerthana", "Madhav", "Manoj", "Meera", "Mithun",
+            "Nandini", "Naveen", "Nithya", "Pavithra", "Pooja", "Pradeep", "Priya",
+            "Rahul", "Rajesh", "Rithanya", "Rohan", "Rohit", "Sandhya", "Sanjay",
+            "Saravanan", "Shalini", "Siddharth", "Sneha", "Subhash", "Surya", "Swathi",
+            "Tarun", "Varun", "Vignesh", "Vijay", "Vikram", "Vinoth", "Vishnu", "Kalyani",
+            "Mukund", "Swaminathan", "Preethi", "Vasanth", "Shruti", "Gopinath", "Revathi",
+            "Anirudh", "Archana", "Bharath", "Charanya", "Dhruv", "Gayathri", "Hemant"
         ]
 
-        now = datetime.now()
-        for idx, s in enumerate(demo_cohort):
-            q_pos = idx + 1
-            app_no = generate_alphanumeric_id(s["stream"], s["department"], q_pos + 100)
-            app_time = (now - timedelta(minutes=(len(demo_cohort) - idx) * 12)).strftime("%Y-%m-%d %H:%M:%S")
-            cursor.execute("""
-                INSERT OR IGNORE INTO students 
-                (app_no, name, email, phone, department, stream, marks, gender, queue_position, application_date, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-            """, (app_no, s["name"], s["email"], s["phone"], s["department"], s["stream"], s["marks"], s["gender"], q_pos, app_time))
+        last_names = [
+            "Sharma", "Ramanathan", "Menon", "Sundaram", "Verma", "Iyer", "Kumar",
+            "Patil", "Rao", "Nambiar", "Deshmukh", "Natarajan", "Chandran", "Balaji",
+            "Venkatesh", "Selvam", "Panicker", "Krishnan", "Subramanian", "Mohan",
+            "Raj", "Sankar", "Prasad", "Murali", "Nair", "Pillai", "Reddy", "Naidu",
+            "Chettiar", "Gounder", "Anand", "Chari", "Raghavan", "Srinivasan", "Sridhar",
+            "Swamy", "Acharya", "Chopra", "Kulkarni", "Bhatt"
+        ]
+
+        # 33 courses * 32 applicants = 1,056 realistic students
+        students_per_course = 32
+        base_time = datetime.now() - timedelta(days=3)
+        hours_pool = ["09", "10", "11", "12", "13", "14", "15", "16"]
+
+        admissions_to_insert = []
+        students_to_insert = []
+
+        student_counter = 1
+        for c_idx, course in enumerate(DEFAULT_COURSES):
+            course_name = course["name"]
+            course_code = course["code"]
+            stream = course["stream"]
+            cutoff = course["cutoff"]
+
+            for i in range(students_per_course):
+                fn = first_names[(c_idx * students_per_course + i) % len(first_names)]
+                ln = last_names[(c_idx * 5 + i) % len(last_names)]
+                student_name = f"{fn} {ln}"
+                email = f"{fn.lower()}.{ln.lower()}.{student_counter:04d}@abcadmissions.edu"
+                phone = f"9840{100000 + student_counter:06d}"
+                gender = "Female" if i % 2 == 0 else "Male"
+
+                # Generate 6 realistic subject marks centered on cutoff & stream
+                if i < 10:
+                    # Admitted cohort (high marks)
+                    base_m = min(98.5, max(cutoff + 1.0, cutoff + (10 - i) * 1.5 + random.uniform(-1.5, 2.0)))
+                    status = "admitted"
+                    cert_status = "verified"
+                    queue_pos = None
+                elif i < 12:
+                    # Rejected cohort
+                    base_m = max(42.0, cutoff - 12.0 - random.uniform(0.5, 8.0))
+                    status = "rejected"
+                    cert_status = "flagged" if i == 10 else "rejected"
+                    queue_pos = None
+                else:
+                    # Pending in subject queue (queue position 1 to 20)
+                    base_m = min(97.0, max(52.0, cutoff + random.uniform(-8.0, 10.0)))
+                    status = "pending"
+                    cert_status = "verified" if (i % 3 != 0) else "pending"
+                    queue_pos = i - 11
+
+                m1 = round(min(100.0, max(40.0, base_m + random.uniform(-3.0, 3.5))), 1)
+                m2 = round(min(100.0, max(40.0, base_m + random.uniform(-3.0, 3.5))), 1)
+                m3 = round(min(100.0, max(40.0, base_m + random.uniform(-4.0, 4.0))), 1)
+                m4 = round(min(100.0, max(40.0, base_m + random.uniform(-4.0, 4.0))), 1)
+                m5 = round(min(100.0, max(40.0, base_m + random.uniform(-4.0, 4.0))), 1)
+                m6 = round(min(100.0, max(40.0, base_m + random.uniform(-3.5, 3.5))), 1)
+                marks_total = round(m1 + m2 + m3 + m4 + m5 + m6, 1)
+                marks_avg = round(marks_total / 6.0, 2)
+
+                app_no = generate_alphanumeric_id(stream, course_name, student_counter + 1000)
+                app_date = (base_time + timedelta(minutes=student_counter * 3)).strftime("%Y-%m-%d %H:%M:%S")
+
+                cert_docs = '{"marksheet_10":true,"marksheet_12":true,"tc":true,"community_cert":true}'
+                cert_remarks = "All 4 original certificates verified" if cert_status == "verified" else ("Community certificate unclear" if cert_status == "flagged" else "")
+
+                students_to_insert.append((
+                    student_counter, app_no, student_name, email, phone, course_name, stream, course_code,
+                    marks_avg, m1, m2, m3, m4, m5, m6, marks_total, gender, status, queue_pos,
+                    cert_status, cert_remarks, cert_docs, app_date
+                ))
+
+                if status == "admitted":
+                    seat_num = f"{course_code}-{i + 1:02d}"
+                    hr = hours_pool[(student_counter + i) % len(hours_pool)]
+                    allocated_time = f"2026-09-18 {hr}:{((student_counter * 7) % 60):02d}:00"
+                    admissions_to_insert.append((
+                        student_counter, seat_num, course_name, stream, allocated_time, "active"
+                    ))
+
+                student_counter += 1
+
+        cursor.executemany("""
+            INSERT INTO students
+            (id, app_no, name, email, phone, department, stream, course_code,
+             marks, m1, m2, m3, m4, m5, m6, marks_total, gender, status, queue_position,
+             cert_status, cert_remarks, cert_docs, application_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, students_to_insert)
+
+        cursor.executemany("""
+            INSERT INTO admissions
+            (student_id, seat_number, department, stream, allocated_at, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, admissions_to_insert)
 
         conn.commit()
 
@@ -225,37 +331,122 @@ def add_student(data):
     conn = get_db()
     cursor = conn.cursor()
 
-    # Determine stream if not explicitly provided
-    stream = data.get("stream")
-    if not stream:
-        cursor.execute("SELECT stream FROM courses WHERE name = ?", (data["department"],))
-        c_row = cursor.fetchone()
-        stream = c_row["stream"] if c_row else ("SFS" if "(sfs)" in data["department"].lower() else "Aided")
+    dept = data["department"]
+    cursor.execute("SELECT code, stream FROM courses WHERE name = ?", (dept,))
+    c_row = cursor.fetchone()
+    if c_row:
+        stream = data.get("stream") or c_row["stream"]
+        course_code = c_row["code"]
+    else:
+        stream = data.get("stream", "Aided")
+        course_code = "GEN"
+
+    # Handle 6 subject marks calculation
+    m1 = float(data.get("m1", 0))
+    m2 = float(data.get("m2", 0))
+    m3 = float(data.get("m3", 0))
+    m4 = float(data.get("m4", 0))
+    m5 = float(data.get("m5", 0))
+    m6 = float(data.get("m6", 0))
+
+    if m1 > 0 or m2 > 0 or m3 > 0 or m4 > 0 or m5 > 0 or m6 > 0:
+        marks_total = round(m1 + m2 + m3 + m4 + m5 + m6, 1)
+        marks = round(marks_total / 6.0, 2)
+    else:
+        marks = float(data.get("marks", 0))
+        marks_total = round(marks * 6.0, 1)
+        m1 = m2 = m3 = m4 = m5 = m6 = marks
 
     cursor.execute("SELECT COUNT(*) as count FROM students")
     total_count = cursor.fetchone()["count"]
-    app_no = generate_alphanumeric_id(stream, data["department"], total_count + 101)
+    app_no = generate_alphanumeric_id(stream, dept, total_count + 1001)
+
+    cert_status = data.get("cert_status", "pending")
+    cert_remarks = data.get("cert_remarks", "")
+    cert_docs = data.get("cert_docs", '{"marksheet_10":true,"marksheet_12":true,"tc":true,"community_cert":true}')
 
     cursor.execute("""
         INSERT INTO students
-        (app_no, name, email, phone, department, stream, marks, gender, queue_position)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (app_no, name, email, phone, department, stream, course_code, marks,
+         m1, m2, m3, m4, m5, m6, marks_total, gender, queue_position,
+         cert_status, cert_remarks, cert_docs, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     """, (
         app_no,
-        data["name"],
-        data["email"],
-        data["phone"],
-        data["department"],
+        data["name"].strip(),
+        data["email"].strip().lower(),
+        data["phone"].strip(),
+        dept,
         stream,
-        data["marks"],
+        course_code,
+        marks,
+        m1, m2, m3, m4, m5, m6, marks_total,
         data.get("gender", "Not Specified"),
-        data["queue_position"]
+        data.get("queue_position", 1),
+        cert_status,
+        cert_remarks,
+        str(cert_docs)
     ))
 
     student_id = cursor.lastrowid
     conn.commit()
     conn.close()
     return student_id, app_no
+
+
+def update_certificate_status(student_id, status, remarks=""):
+    """
+    Updates the certificate verification status of an applicant.
+    Status can be 'verified', 'flagged', or 'pending'.
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE students
+        SET cert_status = ?, cert_remarks = ?
+        WHERE id = ?
+    """, (status, remarks, student_id))
+    conn.commit()
+    conn.close()
+    return True
+
+
+def get_course_by_code(code):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM courses WHERE UPPER(code) = UPPER(?)", (str(code).strip(),))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_course_by_name(name):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM courses WHERE UPPER(name) = UPPER(?)", (str(name).strip(),))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_pending_students_by_course(course_code=None):
+    conn = get_db()
+    cursor = conn.cursor()
+    if course_code and str(course_code).strip().upper() != "ALL":
+        cursor.execute("""
+            SELECT * FROM students 
+            WHERE status = 'pending' AND UPPER(course_code) = UPPER(?)
+            ORDER BY queue_position ASC, id ASC
+        """, (str(course_code).strip(),))
+    else:
+        cursor.execute("""
+            SELECT * FROM students 
+            WHERE status = 'pending'
+            ORDER BY queue_position ASC, id ASC
+        """)
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
 
 
 def get_student_by_identifier(query):
