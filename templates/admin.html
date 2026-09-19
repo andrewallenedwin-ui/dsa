@@ -22,6 +22,9 @@
                     </div>
                 </div>
                 <div class="header-badge-group">
+                    <a class="nav-btn btn-excel-top" href="/api/export-students" title="Export entire applicant database as formatted Excel spreadsheet">
+                        <span class="icon">📥</span> Export Excel (.xlsx)
+                    </a>
                     <a class="nav-btn" href="/">
                         <span class="icon">👤</span> Student Portal
                     </a>
@@ -36,14 +39,20 @@
         <section class="stats-grid dashboard-stats">
             <div class="stat-box">
                 <span class="stat-label">Total College Seats</span>
-                <span id="totalSeats" class="stat-number">1725</span>
+                <span id="totalSeats" class="stat-number">855</span>
                 <span class="stat-sub">Approved Sanctioned Intake</span>
             </div>
 
             <div class="stat-box">
                 <span class="stat-label">Total Applicants</span>
-                <span id="totalStudents" class="stat-number">1056+</span>
+                <span id="totalStudents" class="stat-number">2475+</span>
                 <span class="stat-sub">Central Admission Repository</span>
+            </div>
+
+            <div class="stat-box overfill-box" title="Chennai Premier College Over-subscription Index">
+                <span class="stat-label">Demand Ratio (Overfill)</span>
+                <span id="demandRatio" class="stat-number">290%</span>
+                <span class="stat-sub">🔥 Chennai Tier-1 Fierce Rush</span>
             </div>
 
             <div class="stat-box filled-box">
@@ -78,7 +87,7 @@
 
             <div class="stat-box rejected-box" onclick="scrollToRejections()" style="cursor: pointer;" title="Click to view disqualified applicants and rejection reasons breakdown">
                 <span class="stat-label">Rejected Applicants</span>
-                <span id="totalRejected" class="stat-number">66</span>
+                <span id="totalRejected" class="stat-number">99</span>
                 <span class="stat-sub">Marks / Cert / Fee Issues</span>
             </div>
         </section>
@@ -95,6 +104,49 @@
                 </div>
                 <div class="live-clock">
                     <span class="pulse-dot"></span> Live Time: <strong id="lastUpdated">Loading...</strong>
+                </div>
+            </div>
+
+            <!-- Chennai Tier-1 Admission Surge & Overfill Monitor -->
+            <div class="overfill-banner-card">
+                <div class="overfill-banner-header">
+                    <div class="overfill-badge-pill">🔥 CHENNAI PREMIER AUTONOMOUS INSTITUTION — TIER-1 OVERFILLING ADMISSION RUSH</div>
+                    <span class="overfill-meta-note">Affiliated to University of Madras &bull; Sanctioned Intake vs Applicant Surge</span>
+                </div>
+                <div class="overfill-stats-grid">
+                    <div class="of-stat">
+                        <span class="of-lbl">Total Applications</span>
+                        <strong id="ofTotalApps" class="of-val">2,475</strong>
+                        <small class="of-sub">Applicants Received</small>
+                    </div>
+                    <div class="of-stat">
+                        <span class="of-lbl">Sanctioned Intake</span>
+                        <strong id="ofSanctioned" class="of-val">855 Seats</strong>
+                        <small class="of-sub">Across 33 Programs</small>
+                    </div>
+                    <div class="of-stat">
+                        <span class="of-lbl">Confirmed Allotments</span>
+                        <strong id="ofFilled" class="of-val text-success">815 (95.3%)</strong>
+                        <small class="of-sub">Active Enrolments</small>
+                    </div>
+                    <div class="of-stat">
+                        <span class="of-lbl">Remaining College Seats</span>
+                        <strong id="ofRemaining" class="of-val text-danger">40 Seats Left</strong>
+                        <small class="of-sub">Fierce Competition</small>
+                    </div>
+                    <div class="of-stat highlight">
+                        <span class="of-lbl">Waitlist Overflow</span>
+                        <strong id="ofWaiting" class="of-val text-warning">1,561 in Queues</strong>
+                        <small class="of-sub">FIFO Department Queues</small>
+                    </div>
+                    <div class="of-stat highlight-ratio">
+                        <span class="of-lbl">Overfill Demand Factor</span>
+                        <strong id="ofRatio" class="of-val text-primary">2.89x (289%)</strong>
+                        <small class="of-sub">Over-Subscribed</small>
+                    </div>
+                </div>
+                <div class="of-notice-footer">
+                    <span>⚡ <strong>Admissions Advisory:</strong> Being a competitive premier college in Chennai, applications exceed sanctioned capacity by nearly <strong>300%</strong>. Highly contested courses (B.Com General, Computer Science, BCA, Data Science) are over <strong>95% filled</strong>. Allotments are governed strictly by <strong>Selection Sort Merit Order</strong> and departmental <strong>FIFO Queues</strong>.</span>
                 </div>
             </div>
 
@@ -296,13 +348,24 @@
                         </tr>
                     </tbody>
                 </table>
-            <        <!-- All Student Applications Database Table (1000+ Records) -->
+            </div>
+        </section>
+
+        <!-- All Student Applications Database Table (2,475+ Records) -->
         <section class="card wide-card">
             <div class="card-header">
                 <div class="card-icon">📁</div>
-                <div>
-                    <h2>Central Student Repository (1,000+ Applicants)</h2>
-                    <p class="small-text">Comprehensive applicant database across 33 Arts & Science programs.</p>
+                <div class="header-fill">
+                    <h2>Central Student Repository (2,475+ Applicants)</h2>
+                    <p class="small-text">Comprehensive applicant database across 33 Arts & Science programs with complete marks, quota status, and verification trail.</p>
+                </div>
+                <div class="repo-export-btns">
+                    <a href="/api/export-students" class="btn btn-export-excel" title="Download formatted Excel (.xlsx) file">
+                        <span>📊</span> Export to Excel (.xlsx)
+                    </a>
+                    <a href="/api/export-students?format=csv" class="btn btn-export-csv" title="Download CSV file">
+                        <span>📄</span> Export CSV
+                    </a>
                 </div>
             </div>
 
@@ -339,7 +402,7 @@
                     </select>
                 </div>
                 <div class="filter-item count-item">
-                    <span id="filteredCountText" class="badge-count">Showing 1056 applicants</span>
+                    <span id="filteredCountText" class="badge-count">Showing 2,475 applicants</span>
                 </div>
             </div>
 
@@ -377,7 +440,7 @@
                     </p>
                 </div>
                 <div class="live-clock" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">
-                    Total Disqualified: <strong id="rejectionCardCount">66</strong>
+                    Total Disqualified: <strong id="rejectionCardCount">99</strong>
                 </div>
             </div>
 
@@ -421,7 +484,7 @@
                     </select>
                 </div>
                 <div class="filter-item count-item">
-                    <span id="rejFilteredCountText" class="badge-count" style="background: #fee2e2; color: #991b1b;">Showing 66 rejected applicants</span>
+                    <span id="rejFilteredCountText" class="badge-count" style="background: #fee2e2; color: #991b1b;">Showing 99 rejected applicants</span>
                 </div>
             </div>
 
@@ -535,7 +598,28 @@
                 document.getElementById("lastUpdated").textContent = data.time;
 
                 if (document.getElementById("totalStudents")) {
-                    document.getElementById("totalStudents").textContent = data.total_students || "1056+";
+                    document.getElementById("totalStudents").textContent = (data.total_students || 0).toLocaleString('en-IN');
+                }
+                if (document.getElementById("demandRatio")) {
+                    document.getElementById("demandRatio").textContent = (data.demand_ratio || 0) + "%";
+                }
+                if (document.getElementById("ofTotalApps")) {
+                    document.getElementById("ofTotalApps").textContent = (data.total_students || 0).toLocaleString('en-IN');
+                }
+                if (document.getElementById("ofSanctioned")) {
+                    document.getElementById("ofSanctioned").textContent = data.total_seats + " Seats";
+                }
+                if (document.getElementById("ofFilled")) {
+                    document.getElementById("ofFilled").textContent = `${data.filled_seats} (${data.fill_rate || data.fill_percentage || 0}%)`;
+                }
+                if (document.getElementById("ofRemaining")) {
+                    document.getElementById("ofRemaining").textContent = data.available_seats + " Seats Left";
+                }
+                if (document.getElementById("ofWaiting")) {
+                    document.getElementById("ofWaiting").textContent = `${data.queue_size || 0} in Queues`;
+                }
+                if (document.getElementById("ofRatio")) {
+                    document.getElementById("ofRatio").textContent = `${data.demand_factor || 0}x (${data.demand_ratio || 0}%)`;
                 }
                 if (document.getElementById("verifiedCerts")) {
                     document.getElementById("verifiedCerts").textContent = data.total_verified || 0;
@@ -707,8 +791,12 @@
                             <span class="stream-tag stream-${c.stream.toLowerCase()}">${c.stream}</span>
                             <strong>${c.name}</strong> 
                             <small class="text-muted">(${c.code})</small>
+                            ${c.is_overfilled ? `<span class="badge-overfill">🔥 Demand ${c.demand_percentage}%</span>` : ''}
                         </span>
-                        <span class="cp-seats"><strong>${c.filled_seats}</strong> / ${c.total_seats} filled (${c.available_seats} remaining)</span>
+                        <span class="cp-seats">
+                            <strong>${c.filled_seats}</strong> / ${c.total_seats} filled (${c.available_seats} remaining)
+                            <span class="badge-waitlist">⏳ ${c.queue_waiting || 0} waitlisted</span>
+                        </span>
                     </div>
                     <div class="cp-bar-track">
                         <div class="cp-bar-fill" style="width: ${c.fill_percentage}%;"></div>

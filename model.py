@@ -19,45 +19,45 @@ else:
 # Comprehensive Arts & Sciences Curriculum (Aided and SFS Streams)
 DEFAULT_COURSES = [
     # --- ARTS & HUMANITIES ---
-    {"name": "B.A Tamil", "code": "BA-TAM", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 60.0, "tuition_fee": 4850},
-    {"name": "B.A English", "code": "BA-ENG-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 60, "cutoff": 78.0, "tuition_fee": 5850},
-    {"name": "B.A English (SFS)", "code": "BA-ENG-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 60, "cutoff": 68.0, "tuition_fee": 19500},
-    {"name": "B.A History", "code": "BA-HIS-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 60.0, "tuition_fee": 4850},
-    {"name": "B.A History (SFS)", "code": "BA-HIS-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 50, "cutoff": 55.0, "tuition_fee": 17500},
-    {"name": "B.A Political Science", "code": "BA-POL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 50, "cutoff": 65.0, "tuition_fee": 5150},
-    {"name": "B.A Philosophy", "code": "BA-PHIL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 40, "cutoff": 58.0, "tuition_fee": 4650},
-    {"name": "B.A Journalism", "code": "BA-JOURN", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 50, "cutoff": 72.0, "tuition_fee": 23500},
+    {"name": "B.A Tamil", "code": "BA-TAM", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 25, "cutoff": 60.0, "tuition_fee": 4850},
+    {"name": "B.A English", "code": "BA-ENG-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 30, "cutoff": 78.0, "tuition_fee": 5850},
+    {"name": "B.A English (SFS)", "code": "BA-ENG-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 30, "cutoff": 68.0, "tuition_fee": 19500},
+    {"name": "B.A History", "code": "BA-HIS-AID", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 25, "cutoff": 60.0, "tuition_fee": 4850},
+    {"name": "B.A History (SFS)", "code": "BA-HIS-SFS", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 25, "cutoff": 55.0, "tuition_fee": 17500},
+    {"name": "B.A Political Science", "code": "BA-POL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 25, "cutoff": 65.0, "tuition_fee": 5150},
+    {"name": "B.A Philosophy", "code": "BA-PHIL", "category": "Arts & Humanities", "stream": "Aided", "total_seats": 20, "cutoff": 58.0, "tuition_fee": 4650},
+    {"name": "B.A Journalism", "code": "BA-JOURN", "category": "Arts & Humanities", "stream": "SFS", "total_seats": 25, "cutoff": 72.0, "tuition_fee": 23500},
 
     # --- SCIENCES ---
-    {"name": "B.Sc Mathematics", "code": "BSC-MAT-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 75.0, "tuition_fee": 6250},
-    {"name": "B.Sc Mathematics (SFS)", "code": "BSC-MAT-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 65.0, "tuition_fee": 21500},
-    {"name": "B.Sc Physics", "code": "BSC-PHY-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 76.0, "tuition_fee": 7850},
-    {"name": "B.Sc Physics (SFS)", "code": "BSC-PHY-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 66.0, "tuition_fee": 24000},
-    {"name": "B.Sc Chemistry", "code": "BSC-CHE-AID", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 74.0, "tuition_fee": 8250},
-    {"name": "B.Sc Chemistry (SFS)", "code": "BSC-CHE-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 65.0, "tuition_fee": 25500},
-    {"name": "B.Sc Botany", "code": "BSC-BOT", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 62.0, "tuition_fee": 7450},
-    {"name": "B.Sc Zoology", "code": "BSC-ZOO", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 62.0, "tuition_fee": 7450},
-    {"name": "B.Sc Statistics", "code": "BSC-STAT", "category": "Sciences", "stream": "Aided", "total_seats": 50, "cutoff": 70.0, "tuition_fee": 6500},
-    {"name": "B.Sc Microbiology", "code": "BSC-MIC", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 74.0, "tuition_fee": 28000},
-    {"name": "B.Sc Computer Science", "code": "BSC-CS-AID", "category": "Sciences", "stream": "Aided", "total_seats": 60, "cutoff": 85.0, "tuition_fee": 11500},
-    {"name": "B.Sc Computer Science (SFS)", "code": "BSC-CS-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 60, "cutoff": 78.0, "tuition_fee": 34500},
-    {"name": "B.Sc Geography", "code": "BSC-GEO", "category": "Sciences", "stream": "Aided", "total_seats": 45, "cutoff": 60.0, "tuition_fee": 6800},
-    {"name": "B.Sc Psychology", "code": "BSC-PSY", "category": "Sciences", "stream": "SFS", "total_seats": 50, "cutoff": 80.0, "tuition_fee": 26000},
+    {"name": "B.Sc Mathematics", "code": "BSC-MAT-AID", "category": "Sciences", "stream": "Aided", "total_seats": 25, "cutoff": 75.0, "tuition_fee": 6250},
+    {"name": "B.Sc Mathematics (SFS)", "code": "BSC-MAT-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 25, "cutoff": 65.0, "tuition_fee": 21500},
+    {"name": "B.Sc Physics", "code": "BSC-PHY-AID", "category": "Sciences", "stream": "Aided", "total_seats": 25, "cutoff": 76.0, "tuition_fee": 7850},
+    {"name": "B.Sc Physics (SFS)", "code": "BSC-PHY-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 25, "cutoff": 66.0, "tuition_fee": 24000},
+    {"name": "B.Sc Chemistry", "code": "BSC-CHE-AID", "category": "Sciences", "stream": "Aided", "total_seats": 25, "cutoff": 74.0, "tuition_fee": 8250},
+    {"name": "B.Sc Chemistry (SFS)", "code": "BSC-CHE-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 25, "cutoff": 65.0, "tuition_fee": 25500},
+    {"name": "B.Sc Botany", "code": "BSC-BOT", "category": "Sciences", "stream": "Aided", "total_seats": 20, "cutoff": 62.0, "tuition_fee": 7450},
+    {"name": "B.Sc Zoology", "code": "BSC-ZOO", "category": "Sciences", "stream": "Aided", "total_seats": 20, "cutoff": 62.0, "tuition_fee": 7450},
+    {"name": "B.Sc Statistics", "code": "BSC-STAT", "category": "Sciences", "stream": "Aided", "total_seats": 25, "cutoff": 70.0, "tuition_fee": 6500},
+    {"name": "B.Sc Microbiology", "code": "BSC-MIC", "category": "Sciences", "stream": "SFS", "total_seats": 25, "cutoff": 74.0, "tuition_fee": 28000},
+    {"name": "B.Sc Computer Science", "code": "BSC-CS-AID", "category": "Sciences", "stream": "Aided", "total_seats": 30, "cutoff": 85.0, "tuition_fee": 11500},
+    {"name": "B.Sc Computer Science (SFS)", "code": "BSC-CS-SFS", "category": "Sciences", "stream": "SFS", "total_seats": 30, "cutoff": 78.0, "tuition_fee": 34500},
+    {"name": "B.Sc Geography", "code": "BSC-GEO", "category": "Sciences", "stream": "Aided", "total_seats": 20, "cutoff": 60.0, "tuition_fee": 6800},
+    {"name": "B.Sc Psychology", "code": "BSC-PSY", "category": "Sciences", "stream": "SFS", "total_seats": 25, "cutoff": 80.0, "tuition_fee": 26000},
 
     # --- COMMERCE & MANAGEMENT ---
-    {"name": "B.Com General", "code": "BCOM-AID", "category": "Commerce & Management", "stream": "Aided", "total_seats": 70, "cutoff": 86.0, "tuition_fee": 6950},
-    {"name": "B.Com General (SFS)", "code": "BCOM-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 70, "cutoff": 80.0, "tuition_fee": 32000},
-    {"name": "B.Com Accounting and Finance", "code": "BCOM-AF", "category": "Commerce & Management", "stream": "SFS", "total_seats": 70, "cutoff": 82.0, "tuition_fee": 34000},
-    {"name": "B.Com Professional Accounting", "code": "BCOM-PA", "category": "Commerce & Management", "stream": "SFS", "total_seats": 60, "cutoff": 84.0, "tuition_fee": 36000},
-    {"name": "BBA Business Administration", "code": "BBA-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 60, "cutoff": 78.0, "tuition_fee": 35000},
+    {"name": "B.Com General", "code": "BCOM-AID", "category": "Commerce & Management", "stream": "Aided", "total_seats": 35, "cutoff": 86.0, "tuition_fee": 6950},
+    {"name": "B.Com General (SFS)", "code": "BCOM-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 35, "cutoff": 80.0, "tuition_fee": 32000},
+    {"name": "B.Com Accounting and Finance", "code": "BCOM-AF", "category": "Commerce & Management", "stream": "SFS", "total_seats": 35, "cutoff": 82.0, "tuition_fee": 34000},
+    {"name": "B.Com Professional Accounting", "code": "BCOM-PA", "category": "Commerce & Management", "stream": "SFS", "total_seats": 30, "cutoff": 84.0, "tuition_fee": 36000},
+    {"name": "BBA Business Administration", "code": "BBA-SFS", "category": "Commerce & Management", "stream": "SFS", "total_seats": 30, "cutoff": 78.0, "tuition_fee": 35000},
 
     # --- PROFESSIONAL & SPECIAL STREAMS ---
-    {"name": "B.S.W Social Work", "code": "BSW-AID", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 40, "cutoff": 60.0, "tuition_fee": 6500},
-    {"name": "B.S.W Social Work (SFS)", "code": "BSW-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 40, "cutoff": 58.0, "tuition_fee": 21000},
-    {"name": "B.C.A Computer Applications", "code": "BCA-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 60, "cutoff": 80.0, "tuition_fee": 36500},
-    {"name": "B.Sc Visual Communication", "code": "BSC-VISCOM", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 50, "cutoff": 76.0, "tuition_fee": 38000},
-    {"name": "B.Sc Data Science", "code": "BSC-DS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 50, "cutoff": 83.0, "tuition_fee": 37500},
-    {"name": "B.Sc Physical Education", "code": "BSC-PED", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 40, "cutoff": 55.0, "tuition_fee": 5800},
+    {"name": "B.S.W Social Work", "code": "BSW-AID", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 20, "cutoff": 60.0, "tuition_fee": 6500},
+    {"name": "B.S.W Social Work (SFS)", "code": "BSW-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 20, "cutoff": 58.0, "tuition_fee": 21000},
+    {"name": "B.C.A Computer Applications", "code": "BCA-SFS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 30, "cutoff": 80.0, "tuition_fee": 36500},
+    {"name": "B.Sc Visual Communication", "code": "BSC-VISCOM", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 25, "cutoff": 76.0, "tuition_fee": 38000},
+    {"name": "B.Sc Data Science", "code": "BSC-DS", "category": "Professional & Special Streams", "stream": "SFS", "total_seats": 25, "cutoff": 83.0, "tuition_fee": 37500},
+    {"name": "B.Sc Physical Education", "code": "BSC-PED", "category": "Professional & Special Streams", "stream": "Aided", "total_seats": 20, "cutoff": 55.0, "tuition_fee": 5800},
 ]
 
 
@@ -228,14 +228,14 @@ def generate_alphanumeric_id(stream, department, seq_num):
     return f"ABC26-{stream_prefix}-{abbr}-{seq_num:04d}"
 
 
-def seed_demo_if_empty():
+def seed_demo_if_empty(force=False):
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) as count FROM students")
     count = cursor.fetchone()["count"]
 
-    if count < 1000:
-        # Reset tables for clean 1000+ cohort generation
+    if count < 2000 or force:
+        # Reset tables for clean 2,475+ competitive Chennai overfilling cohort generation
         cursor.execute("DELETE FROM admissions")
         cursor.execute("DELETE FROM admin_actions")
         cursor.execute("DELETE FROM students")
@@ -261,10 +261,10 @@ def seed_demo_if_empty():
             "Swamy", "Acharya", "Chopra", "Kulkarni", "Bhatt"
         ]
 
-        # 33 courses * 32 applicants = 1,056 realistic students
-        students_per_course = 32
-        base_time = datetime.now() - timedelta(days=3)
-        hours_pool = ["09", "10", "11", "12", "13", "14", "15", "16"]
+        # 33 courses * 75 applicants = 2,475 realistic competitive applicants (290% Overfill Ratio)
+        students_per_course = 75
+        base_time = datetime.now() - timedelta(days=4)
+        hours_pool = ["09", "10", "11", "12", "13", "14", "15", "16", "17"]
 
         admissions_to_insert = []
         students_to_insert = []
@@ -275,41 +275,49 @@ def seed_demo_if_empty():
             course_code = course["code"]
             stream = course["stream"]
             cutoff = course["cutoff"]
+            total_seats = course["total_seats"]
+
+            # Overfilling admission: 95%-100% capacity filled, leaving tiny margin for queue waitlist
+            admitted_count = total_seats if (c_idx % 4 == 0) else max(1, total_seats - (1 if c_idx % 2 == 0 else 2))
+            rejected_count = 3
 
             for i in range(students_per_course):
                 fn = first_names[(c_idx * students_per_course + i) % len(first_names)]
                 ln = last_names[(c_idx * 5 + i) % len(last_names)]
                 student_name = f"{fn} {ln}"
                 email = f"{fn.lower()}.{ln.lower()}.{student_counter:04d}@abcadmissions.edu"
-                phone = f"9840{100000 + student_counter:06d}"
+                phone = f"9840{100000 + (student_counter % 900000):06d}"
                 gender = "Female" if i % 2 == 0 else "Male"
 
                 # Generate 6 realistic subject marks centered on cutoff & stream
                 rejection_reason = ""
-                if i < 10:
-                    # Admitted cohort (high marks)
-                    base_m = min(98.5, max(cutoff + 1.0, cutoff + (10 - i) * 1.5 + random.uniform(-1.5, 2.0)))
+                if i < admitted_count:
+                    # Admitted cohort (high marks, verified certificates)
+                    base_m = min(98.5, max(cutoff + 1.0, cutoff + (admitted_count - i) * 0.8 + random.uniform(-1.0, 2.0)))
                     status = "admitted"
                     cert_status = "verified"
                     queue_pos = None
-                elif i < 12:
-                    # Rejected cohort
+                elif i < admitted_count + rejected_count:
+                    # Disqualified / Rejected cohort (below cutoff, certs pending, or fee deadline passed)
                     base_m = max(42.0, cutoff - 12.0 - random.uniform(0.5, 8.0))
                     status = "rejected"
-                    cert_status = "flagged" if i == 10 else "rejected"
-                    queue_pos = None
-                    if i == 10:
+                    rej_type_idx = i - admitted_count
+                    if rej_type_idx == 0:
+                        cert_status = "flagged"
                         rejection_reason = "Certificate Pending: Original Transfer Certificate (TC) & 12th Marksheet verification unfulfilled"
-                    elif c_idx % 2 == 0:
+                    elif rej_type_idx == 1:
+                        cert_status = "rejected"
                         rejection_reason = f"Marks Below Cutoff: HSC aggregate ({round(base_m, 1)}%) below minimum cutoff of {cutoff}%"
                     else:
+                        cert_status = "verified"
                         rejection_reason = "Admission Fees Issue: Prescribed first semester tuition fee remittance deadline expired"
+                    queue_pos = None
                 else:
-                    # Pending in subject queue (queue position 1 to 20)
-                    base_m = min(97.0, max(52.0, cutoff + random.uniform(-8.0, 10.0)))
+                    # Overflowing Waitlist Cohort in FIFO Subject Queue
+                    base_m = min(96.0, max(50.0, cutoff + random.uniform(-10.0, 8.0)))
                     status = "pending"
                     cert_status = "verified" if (i % 3 != 0) else "pending"
-                    queue_pos = i - 11
+                    queue_pos = (i - (admitted_count + rejected_count)) + 1
 
                 m1 = round(min(100.0, max(40.0, base_m + random.uniform(-3.0, 3.5))), 1)
                 m2 = round(min(100.0, max(40.0, base_m + random.uniform(-3.0, 3.5))), 1)
@@ -321,7 +329,7 @@ def seed_demo_if_empty():
                 marks_avg = round(marks_total / 6.0, 2)
 
                 app_no = generate_alphanumeric_id(stream, course_name, student_counter + 1000)
-                app_date = (base_time + timedelta(minutes=student_counter * 3)).strftime("%Y-%m-%d %H:%M:%S")
+                app_date = (base_time + timedelta(minutes=student_counter * 2)).strftime("%Y-%m-%d %H:%M:%S")
 
                 cert_docs = '{"marksheet_10":true,"marksheet_12":true,"tc":true,"community_cert":true}'
                 cert_remarks = "All 4 original certificates verified" if cert_status == "verified" else ("Community certificate unclear" if cert_status == "flagged" else "")
@@ -658,7 +666,9 @@ def get_course_stats():
             c.total_seats,
             c.cutoff,
             c.tuition_fee,
-            COUNT(CASE WHEN s.status = 'admitted' AND a.status = 'active' THEN 1 END) as filled_seats
+            COUNT(CASE WHEN s.status = 'admitted' AND a.status = 'active' THEN 1 END) as filled_seats,
+            COUNT(CASE WHEN s.status = 'pending' THEN 1 END) as queue_waiting,
+            COUNT(s.id) as total_applicants
         FROM courses c
         LEFT JOIN students s ON s.department = c.name
         LEFT JOIN admissions a ON a.student_id = s.id AND a.status = 'active'
@@ -672,6 +682,9 @@ def get_course_stats():
     for r in rows:
         filled = r["filled_seats"] or 0
         total = r["total_seats"]
+        waiting = r["queue_waiting"] or 0
+        apps = r["total_applicants"] or 0
+        demand_pct = round((apps / total) * 100, 1) if total > 0 else 0
         result.append({
             "id": r["id"],
             "name": r["name"],
@@ -683,7 +696,11 @@ def get_course_stats():
             "tuition_fee": r["tuition_fee"] or 0,
             "filled_seats": filled,
             "available_seats": max(0, total - filled),
-            "fill_percentage": round((filled / total) * 100, 1) if total > 0 else 0
+            "fill_percentage": round((filled / total) * 100, 1) if total > 0 else 0,
+            "queue_waiting": waiting,
+            "total_applicants": apps,
+            "demand_percentage": demand_pct,
+            "is_overfilled": apps > total
         })
     return result
 

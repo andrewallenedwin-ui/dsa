@@ -274,5 +274,65 @@ class TestDSAProject(unittest.TestCase):
         self.assertIn('9342311026', d4['reply'])
         self.assertIn('ஏபிசி', d4['reply'])
 
+    def test_excel_and_csv_export(self):
+        # 1. Test formatted .xlsx Excel export
+        res_xlsx = self.app.get('/api/export-students')
+        self.assertEqual(res_xlsx.status_code, 200)
+        self.assertIn('spreadsheetml', res_xlsx.content_type)
+        self.assertIn('attachment; filename=ABC_College_Student_Admissions_2026.xlsx', res_xlsx.headers.get('Content-Disposition', ''))
+        self.assertTrue(res_xlsx.headers.get('Content-Disposition', '').endswith('.xlsx'))
+        # Ensure non-trivial Excel binary payload (> 50KB for 2,475 records)
+        self.assertGreater(len(res_xlsx.data), 50000)
+
+        # 2. Test UTF-8 BOM CSV export
+        res_csv = self.app.get('/api/export-students?format=csv')
+        self.assertEqual(res_csv.status_code, 200)
+        self.assertIn('text/csv', res_csv.content_type)
+        self.assertIn('.csv', res_csv.headers.get('Content-Disposition', ''))
+        csv_text = res_csv.data.decode('utf-8-sig')
+        lines = csv_text.strip().split('\n')
+        # Header + 2,475+ rows
+        self.assertGreaterEqual(len(lines), 2000)
+        self.assertIn('Application No', lines[0])
+        self.assertIn('Aggregate %', lines[0])
+        self.assertIn('HSC Total (/600)', lines[0])
+        self.assertIn('Certificate Status', lines[0])
+
+    def test_chennai_overfilling_admissions(self):
+        # 1. Verify Master Dashboard overfill metrics
+        res = self.app.get('/api/dashboard')
+        self.assertEqual(res.status_code, 200)
+        d = res.get_json()
+        self.assertTrue(d['success'])
+        
+        # Sanctioned seats vs overfill applicants
+        self.assertEqual(d['total_seats'], 855)
+        self.assertGreaterEqual(d['total_students'], 2400)
+        self.assertGreaterEqual(d['filled_seats'], 800)
+        self.assertLessEqual(d['available_seats'], 55)
+        self.assertGreaterEqual(d['demand_ratio'], 250.0)
+        self.assertGreaterEqual(d['demand_factor'], 2.5)
+        self.assertGreaterEqual(d['fill_rate'], 90.0)
+        self.assertIn('CHENNAI ADMISSION RUSH', d['competition_status'])
+
+        # 2. Verify courses departmental overfill stats
+        res_courses = self.app.get('/api/courses')
+        courses = res_courses.get_json()['courses']
+        overfilled_courses = [c for c in courses if c.get('is_overfilled')]
+        self.assertGreater(len(overfilled_courses), 20)
+        for c in overfilled_courses:
+            self.assertGreater(c['queue_waiting'], 0)
+            self.assertGreater(c['demand_percentage'], 100)
+
+        # 3. Verify ABC FRIEND chatbot provides Chennai competition insights
+        res_chat = self.app.post('/api/chat', data=json.dumps({
+            'message': 'Tell me about the admission competition and rush this year in Chennai',
+            'lang': 'en'
+        }), content_type='application/json')
+        self.assertEqual(res_chat.status_code, 200)
+        chat_data = res_chat.get_json()
+        self.assertIn('Chennai', chat_data['reply'])
+        self.assertTrue('demand' in chat_data['reply'].lower() or 'seats' in chat_data['reply'].lower())
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,12 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file, Response
 from dsa_structures import AdmissionQueue, AdminActionStack, SelectionSort, SubjectQueueManager
 from datetime import datetime
 import json
+import io
+import csv
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
 import models
 
 app = Flask(__name__)
@@ -438,6 +443,12 @@ def dashboard():
     total_pending_cert = sum(1 for s in all_students if s.get("cert_status") == "pending")
     total_flagged_cert = sum(1 for s in all_students if s.get("cert_status") in ["flagged", "rejected"])
 
+    demand_ratio = round((len(all_students) / total_seats) * 100, 1) if total_seats > 0 else 0
+    demand_factor = round(len(all_students) / total_seats, 2) if total_seats > 0 else 0
+    fill_rate = round((filled_seats / total_seats) * 100, 1) if total_seats > 0 else 0
+    overfill_count = max(0, len(all_students) - total_seats)
+    selectivity_rate = round((filled_seats / len(all_students)) * 100, 1) if len(all_students) > 0 else 0
+
     return jsonify({
         "success": True,
         "total_seats": total_seats,
@@ -461,6 +472,13 @@ def dashboard():
         "recent_actions": admin_stack.get_recent_actions(8),
         "courses": models.get_course_stats(),
         "hourly_stats": models.get_hourly_admissions(),
+        "demand_ratio": demand_ratio,
+        "demand_factor": demand_factor,
+        "fill_rate": fill_rate,
+        "overfill_count": overfill_count,
+        "selectivity_rate": selectivity_rate,
+        "competition_status": "FIERCE TIER-1 CHENNAI ADMISSION RUSH (OVERFILLING)",
+        "is_overfilled": len(all_students) > total_seats,
         "time": datetime.now().strftime("%d-%b-%Y %I:%M:%S %p")
     })
 
@@ -490,6 +508,245 @@ def students():
         "success": True,
         "students": models.get_all_students()
     })
+
+
+@app.route("/api/export-students")
+def export_students():
+    """
+    Exports the overall student repository as a formatted Excel (.xlsx) file
+    or CSV file for administrative reporting and Chennai college quota analysis.
+    """
+    fmt = request.args.get("format", "xlsx").lower()
+    stream_filter = request.args.get("stream", "All")
+    status_filter = request.args.get("status", "All")
+    dept_filter = request.args.get("department", "All")
+
+    students_list = models.get_all_students()
+
+    # Optional query filters
+    if stream_filter and stream_filter != "All":
+        students_list = [s for s in students_list if s.get("stream") == stream_filter]
+    if status_filter and status_filter != "All":
+        students_list = [s for s in students_list if s.get("status") == status_filter]
+    if dept_filter and dept_filter != "All":
+        students_list = [s for s in students_list if s.get("department") == dept_filter]
+
+    # CSV Format Export
+    if fmt == "csv":
+        output = io.StringIO()
+        output.write('\ufeff') # UTF-8 BOM for Excel compatibility
+        writer = csv.writer(output)
+        writer.writerow([
+            "Sl No", "Application No", "Student Name", "Gender", "Mobile Phone", "Email Address",
+            "Degree Program", "Stream", "Course Code",
+            "Language (Part I)", "English (Part II)", "Core 1", "Core 2", "Core 3", "Core 4 / Elective",
+            "HSC Total (/600)", "Aggregate %", "Admission Status", "Allotted Seat No", "Queue Position",
+            "Certificate Status", "Document Officer Notes", "Disqualification / Rejection Reason", "Application Date"
+        ])
+        for idx, s in enumerate(students_list, 1):
+            st = s.get("status", "").lower()
+            status_label = "ADMITTED" if st == "admitted" else ("WAITLIST" if st == "pending" else "REJECTED")
+            seat = s.get("seat_number", "") or ("-" if st == "rejected" else "IN QUEUE")
+            q_pos = s.get("queue_position", "") if st == "pending" else "-"
+
+            writer.writerow([
+                idx,
+                s.get("app_no", ""),
+                s.get("name", ""),
+                s.get("gender", ""),
+                s.get("phone", ""),
+                s.get("email", ""),
+                s.get("department", ""),
+                s.get("stream", ""),
+                s.get("course_code", ""),
+                s.get("m1", 0),
+                s.get("m2", 0),
+                s.get("m3", 0),
+                s.get("m4", 0),
+                s.get("m5", 0),
+                s.get("m6", 0),
+                s.get("marks_total", 0),
+                s.get("marks", 0),
+                status_label,
+                seat,
+                q_pos,
+                str(s.get("cert_status", "")).upper(),
+                s.get("cert_remarks", ""),
+                s.get("rejection_reason", ""),
+                s.get("application_date", "")
+            ])
+        output.seek(0)
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv; charset=utf-8-sig",
+            headers={"Content-Disposition": "attachment; filename=ABC_College_Admissions_2026.csv"}
+        )
+
+    # Excel (.xlsx) Format Export using openpyxl
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Student Repository"
+    ws.views.sheetView[0].showGridLines = True
+
+    # Typography & Styles
+    title_font = Font(name="Calibri", size=14, bold=True, color="1E3A8A")
+    subtitle_font = Font(name="Calibri", size=10, italic=True, color="475569")
+    meta_font = Font(name="Calibri", size=9, bold=True, color="0F172A")
+    header_font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="1E3A8A", end_color="1E3A8A", fill_type="solid")
+
+    stripe_fill = PatternFill(start_color="F8FAFC", end_color="F8FAFC", fill_type="solid")
+    admitted_fill = PatternFill(start_color="DCFCE7", end_color="DCFCE7", fill_type="solid")
+    admitted_font = Font(name="Calibri", size=9, bold=True, color="166534")
+    pending_fill = PatternFill(start_color="DBEAFE", end_color="DBEAFE", fill_type="solid")
+    pending_font = Font(name="Calibri", size=9, bold=True, color="1E40AF")
+    rejected_fill = PatternFill(start_color="FEE2E2", end_color="FEE2E2", fill_type="solid")
+    rejected_font = Font(name="Calibri", size=9, bold=True, color="991B1B")
+
+    thin_border = Border(
+        left=Side(style='thin', color='E2E8F0'),
+        right=Side(style='thin', color='E2E8F0'),
+        top=Side(style='thin', color='E2E8F0'),
+        bottom=Side(style='thin', color='E2E8F0')
+    )
+
+    # Institution Title Block
+    ws.merge_cells("A1:X1")
+    ws["A1"] = "ABC COLLEGE OF ARTS AND SCIENCE (AUTONOMOUS) — CHENNAI"
+    ws["A1"].font = title_font
+    ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = 26
+
+    ws.merge_cells("A2:X2")
+    ws["A2"] = "Central Admissions Office & Departmental Queue System — Academic Cohort 2026–2027"
+    ws["A2"].font = subtitle_font
+    ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[2].height = 18
+
+    # Meta KPI line
+    ws.merge_cells("A3:X3")
+    total_count = len(students_list)
+    admitted_count = sum(1 for s in students_list if s.get("status") == "admitted")
+    pending_count = sum(1 for s in students_list if s.get("status") == "pending")
+    rejected_count = sum(1 for s in students_list if s.get("status") == "rejected")
+    ws["A3"] = f"Report Date: {datetime.now().strftime('%d-%b-%Y %I:%M %p')} | Total Applicants: {total_count} | Confirmed Seats: {admitted_count} | In Queue: {pending_count} | Rejected: {rejected_count} | Status: OVERFILLING (Chennai Tier-1 Competition)"
+    ws["A3"].font = meta_font
+    ws["A3"].alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[3].height = 20
+
+    # Column Headers at Row 5
+    headers = [
+        "Sl No", "Application No", "Student Name", "Gender", "Mobile Phone", "Email Address",
+        "Degree Program", "Stream", "Course Code",
+        "Lang (Part I)", "English (Part II)", "Core 1", "Core 2", "Core 3", "Core 4 / Elective",
+        "HSC Total (/600)", "Aggregate %", "Admission Status", "Allotted Seat No", "Queue Rank",
+        "Certificate Status", "Document Officer Notes", "Disqualification / Rejection Reason", "Submission Date"
+    ]
+    ws.append([]) # Row 4 empty
+    ws.row_dimensions[4].height = 8
+    ws.append(headers) # Row 5
+    ws.row_dimensions[5].height = 26
+
+    for col_idx in range(1, len(headers) + 1):
+        cell = ws.cell(row=5, column=col_idx)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+
+    # Populate Data Rows
+    row_num = 6
+    for idx, s in enumerate(students_list, 1):
+        st = s.get("status", "").lower()
+        status_label = "ADMITTED" if st == "admitted" else ("WAITLIST" if st == "pending" else "REJECTED")
+        seat = s.get("seat_number", "") or ("-" if st == "rejected" else "IN QUEUE")
+        q_pos = s.get("queue_position", "") if st == "pending" else "-"
+
+        row_data = [
+            idx,
+            s.get("app_no", ""),
+            s.get("name", ""),
+            s.get("gender", ""),
+            s.get("phone", ""),
+            s.get("email", ""),
+            s.get("department", ""),
+            s.get("stream", ""),
+            s.get("course_code", ""),
+            s.get("m1", 0),
+            s.get("m2", 0),
+            s.get("m3", 0),
+            s.get("m4", 0),
+            s.get("m5", 0),
+            s.get("m6", 0),
+            s.get("marks_total", 0),
+            s.get("marks", 0),
+            status_label,
+            seat,
+            q_pos,
+            str(s.get("cert_status", "")).upper(),
+            s.get("cert_remarks", ""),
+            s.get("rejection_reason", ""),
+            s.get("application_date", "")
+        ]
+        ws.append(row_data)
+        ws.row_dimensions[row_num].height = 20
+
+        is_even = (idx % 2 == 0)
+        for col_idx in range(1, len(row_data) + 1):
+            cell = ws.cell(row=row_num, column=col_idx)
+            cell.border = thin_border
+            cell.font = Font(name="Calibri", size=9)
+
+            if is_even:
+                cell.fill = stripe_fill
+
+            # Column alignments
+            if col_idx in [1, 4, 8, 9, 18, 19, 20, 21]:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+            elif col_idx in [10, 11, 12, 13, 14, 15, 16, 17]:
+                cell.alignment = Alignment(horizontal="right", vertical="center")
+            else:
+                cell.alignment = Alignment(horizontal="left", vertical="center")
+
+            # Color code status column
+            if col_idx == 18:
+                if st == "admitted":
+                    cell.fill = admitted_fill
+                    cell.font = admitted_font
+                elif st == "pending":
+                    cell.fill = pending_fill
+                    cell.font = pending_font
+                elif st == "rejected":
+                    cell.fill = rejected_fill
+                    cell.font = rejected_font
+
+        row_num += 1
+
+    # Freeze panes below header row
+    ws.freeze_panes = "A6"
+
+    # Auto-adjust column widths
+    for col in ws.columns:
+        max_len = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            if cell.row < 5:
+                continue
+            val_str = str(cell.value or '')
+            if len(val_str) > max_len:
+                max_len = len(val_str)
+        ws.column_dimensions[col_letter].width = max(max_len + 3, 11)
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    filename = f"ABC_College_Student_Admissions_2026.xlsx"
+    return send_file(
+        buf,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        as_attachment=True,
+        download_name=filename
+    )
 
 
 @app.route("/api/reset-demo", methods=["POST"])
@@ -563,6 +820,7 @@ def generate_abc_friend_reply(user_msg, requested_lang="auto"):
         "status", "track", "நிலை", "டிராக்",
         "dsa", "queue", "stack", "sort", "வரிசை", "அடுக்கு",
         "reject", "நிராகரி",
+        "competition", "overfill", "crowd", "rush", "demand", "seats left", "vacancy", "capacity", "போட்டி", "நிரம்ப", "கூட்டம்", "வாய்ப்பு",
         "phone", "mobile", "helpdesk", "contact", "தொலைபேசி", "எண்"
     ])
 
@@ -578,6 +836,35 @@ def generate_abc_friend_reply(user_msg, requested_lang="auto"):
                 "reply": "Hello! I am **ABC FRIEND** — your official AI admissions guide for ABC College of Arts and Science.\n\nI can help you with:\n- 💰 **Course Tuition Fee Structure** (Aided & SFS)\n- 🎯 **Department Cutoff Marks**\n- 📄 **Mandatory Verification Certificates**\n- 📝 **6-Subject Application & Percentage Calculation**\n- 🔍 **Tracking Your Application Status**\n- ⚡ **DSA Concepts (Queue, Stack, Selection Sort)**\n\nAdmissions Helpline: **+91 9342311026**\nHow can I help you today?",
                 "lang": "en",
                 "suggestions": ["Course Fees Structure", "Cutoff Marks", "Required Certificates", "How to Apply?", "Helpline Contact"]
+            }
+
+    # CHENNAI OVERFILLING ADMISSION & COMPETITION RUSH QUERY
+    if any(w in lower_text for w in ["competition", "overfill", "crowd", "rush", "demand", "seats left", "vacancy", "capacity", "போட்டி", "நிரம்ப", "கூட்டம்", "வாய்ப்பு"]):
+        if is_tamil:
+            return {
+                "reply": "🔥 **சென்னையின் முன்னணி போட்டி கல்லூரியான ஏபிசி-யின் சேர்க்கை நிலவரம்:**\n\n"
+                         "சென்னையின் தலைசிறந்த தன்னாட்சி கலை மற்றும் அறிவியல் கல்லூரியாக விளங்குவதால், நடப்பு 2026-2027 கல்வியாண்டில் சேர்க்கை விண்ணப்பங்கள் **அபாரமாக நிரம்பி வழிகின்றன (Overfilling Admission)**:\n\n"
+                         "- 🏛️ **அங்கீகரிக்கப்பட்ட மொத்த இடங்கள்:** 855 இடங்கள் மட்டுமே\n"
+                         "- 📋 **பெறப்பட்ட மொத்த விண்ணப்பங்கள்:** **2,475+ விண்ணப்பங்கள்** (சுமார் 290% அதிக விண்ணப்பங்கள்!)\n"
+                         "- 💺 **நிரப்பப்பட்ட இடங்கள்:** 815 இடங்கள் (95.3% இடங்கள் உறுதிசெய்யப்பட்டன)\n"
+                         "- ⏳ **துறைசார் காத்திருப்போர் வரிசை (Queue):** 1,560-க்கும் மேற்பட்ட மாணவர்கள் காத்திருப்பில் உள்ளனர்!\n"
+                         "- 🎯 **முன்னுரிமை சேர்க்கை:** **Selection Sort மெரிட் பட்டியல்** மற்றும் **FIFO முன்னுரிமை வரிசை** மூலம் மட்டுமே சேர்க்கை நடைபெறும்.\n\n"
+                         "கடைசி சில இடங்கள் வேகமாக நிரம்பி வருவதால், உடனே விண்ணப்பிக்குமாறு கேட்டுக்கொள்ளப்படுகிறீர்கள்!",
+                "lang": "ta",
+                "suggestions": ["கட்-ஆஃப் மதிப்பெண்கள்", "கட்டண விவரங்கள்", "விண்ணப்ப முறை", "உதவி மையம் எண்"]
+            }
+        else:
+            return {
+                "reply": "🔥 **Chennai Tier-1 Premier Admission Rush & Overfilling Status:**\n\n"
+                         "As one of Chennai's premier autonomous Arts & Science institutions (affiliated with University of Madras), admission for 2026–2027 is experiencing an **intense overfilling surge**:\n\n"
+                         "- 🏛️ **Approved Sanctioned Intake:** 855 seats across 33 departments\n"
+                         "- 📋 **Total Applications Received:** **2,475+ candidates** (**290% Over-subscribed Demand!**)\n"
+                         "- 💺 **Confirmed Allotments:** 815 seats (**95.3% Capacity Filled!**)\n"
+                         "- ⏳ **Active FIFO Queue Waitlist:** **1,560+ applicants** competing for the remaining ~40 seats!\n"
+                         "- 🎯 **Allotment Engine:** Governed purely by merit via **Selection Sort** and **FIFO Department Queues**.\n\n"
+                         "With remaining seats closing rapidly, prospective students are advised to complete verification at the earliest.",
+                "lang": "en",
+                "suggestions": ["View Cutoff Marks", "Tuition Fee Schedule", "How to Apply?", "Helpline Desk"]
             }
 
     # FEES GENERAL
