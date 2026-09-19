@@ -64,6 +64,10 @@ DEFAULT_COURSES = [
 def get_db():
     conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+    except Exception:
+        pass
     return conn
 
 
@@ -193,19 +197,13 @@ def init_db():
                 INSERT OR REPLACE INTO courses (name, code, category, stream, total_seats, cutoff, tuition_fee)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (c["name"], c["code"], c["category"], c["stream"], c["total_seats"], c["cutoff"], c.get("tuition_fee", 0)))
-    else:
-        for c in DEFAULT_COURSES:
-            cursor.execute("""
-                UPDATE courses SET tuition_fee = ?, cutoff = ?, total_seats = ? WHERE code = ?
-            """, (c.get("tuition_fee", 0), c["cutoff"], c["total_seats"], c["code"]))
+        total_course_seats = sum(c["total_seats"] for c in DEFAULT_COURSES)
+        cursor.execute("""
+            INSERT OR REPLACE INTO settings (key, value)
+            VALUES ('total_seats', ?)
+        """, (str(total_course_seats),))
+        conn.commit()
 
-    total_course_seats = sum(c["total_seats"] for c in DEFAULT_COURSES)
-    cursor.execute("""
-        INSERT OR REPLACE INTO settings (key, value)
-        VALUES ('total_seats', ?)
-    """, (str(total_course_seats),))
-
-    conn.commit()
     conn.close()
 
     # Seed 1000+ demo applicants if database has fewer than 1000 students

@@ -2,4 +2,6 @@ __pycache__/
 *.pyc
 .vercel/
 *.log
+*.db-wal
+*.db-shm
 

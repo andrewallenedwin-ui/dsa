@@ -35,15 +35,11 @@ hydrate_queue_from_db()
 
 
 @app.route("/")
-@app.route("/api/index")
-@app.route("/api/index.py")
 def index():
     return render_template("index.html")
 
 
 @app.route("/admin")
-@app.route("/api/index/admin")
-@app.route("/api/index.py/admin")
 def admin_page():
     return render_template("admin.html")
 
