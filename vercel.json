@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/((?!static/|public/).*)",
-      "destination": "/api/index.py"
+      "destination": "/api/index.py?__vercel_path=/$1"
     }
   ]
 }
