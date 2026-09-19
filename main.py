@@ -48,6 +48,23 @@ def admin_page():
     return render_template("admin.html")
 
 
+@app.route("/static/<path:filename>")
+@app.route("/api/index/static/<path:filename>")
+@app.route("/api/index.py/static/<path:filename>")
+def serve_static_file(filename):
+    for dir_path in [
+        os.path.join(BASE_DIR, "static"),
+        os.path.join(BASE_DIR, "public", "static"),
+        os.path.join(BASE_DIR, "api", "static"),
+        os.path.join(BASE_DIR, "public"),
+    ]:
+        target = os.path.join(dir_path, filename)
+        if os.path.isfile(target):
+            mime = "text/css; charset=utf-8" if filename.endswith(".css") else None
+            return send_file(target, mimetype=mime)
+    return "Static file not found", 404
+
+
 @app.route("/api/courses")
 def get_courses():
     return jsonify({
