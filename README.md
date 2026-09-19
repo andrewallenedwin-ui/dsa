@@ -1,7 +1,8 @@
 # ABC College of Arts & Science — Online Admission System
 > **Data Structures & Algorithms (DSA) ICA 2 Project**  
 > **Author:** Allen Paul  
-> **Problem Statement:** Transform a manual, paper-based offline college admission process into an automated, transparent online web application leveraging core DSA concepts with visual demonstration.
+> **Problem Statement:** Transform a manual, paper-based offline college admission process into an automated, transparent online web application leveraging core DSA concepts with visual demonstration.  
+> **Production Status:** Ready for Vercel Deployment & Localhost Demonstration (Flask + Python Serverless).
 
 ---
 
