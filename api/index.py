@@ -15,17 +15,28 @@ class VercelPathMiddleware:
 
     def __call__(self, environ, start_response):
         qs = environ.get('QUERY_STRING', '')
-        if '__vercel_path=' in qs:
+        if 'route=' in qs:
             params = parse_qs(qs)
-            if '__vercel_path' in params and params['__vercel_path']:
-                vpath = params['__vercel_path'][0]
-                while '//' in vpath:
-                    vpath = vpath.replace('//', '/')
-                if not vpath.startswith('/'):
-                    vpath = '/' + vpath
-                environ['PATH_INFO'] = vpath
-        elif environ.get('PATH_INFO') in ['/api/index.py', '/api/index']:
-            environ['PATH_INFO'] = '/'
+            route_val = params.get('route', [''])[0].strip()
+            if route_val == 'admin':
+                environ['PATH_INFO'] = '/admin'
+            elif route_val in ['index', '', '/']:
+                environ['PATH_INFO'] = '/'
+            elif route_val.startswith('api/'):
+                environ['PATH_INFO'] = '/' + route_val
+            elif route_val.startswith('/'):
+                environ['PATH_INFO'] = route_val
+            else:
+                environ['PATH_INFO'] = '/' + route_val
+        elif '__vercel_path=' in qs:
+            params = parse_qs(qs)
+            vpath = params.get('__vercel_path', ['/'])[0].strip()
+            if 'admin' in vpath:
+                environ['PATH_INFO'] = '/admin'
+            elif not vpath or vpath in ['/', '//']:
+                environ['PATH_INFO'] = '/'
+            else:
+                environ['PATH_INFO'] = vpath if vpath.startswith('/') else '/' + vpath
         return self.wsgi_app(environ, start_response)
 
 app.wsgi_app = VercelPathMiddleware(app.wsgi_app)

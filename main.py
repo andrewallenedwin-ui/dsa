@@ -50,6 +50,8 @@ hydrate_queue_from_db()
 @app.route("/api/index")
 @app.route("/api/index.py")
 def index():
+    if request.args.get("__page") == "admin" or request.args.get("route") == "admin":
+        return render_template("admin.html")
     return render_template("index.html")
 
 
