@@ -10,10 +10,22 @@ from openpyxl.utils import get_column_letter
 import os
 import models
 
+import jinja2
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,
             template_folder=os.path.join(BASE_DIR, 'templates'),
             static_folder=os.path.join(BASE_DIR, 'static'))
+
+tpl_candidates = [
+    os.path.join(BASE_DIR, 'templates'),
+    os.path.join(BASE_DIR, 'api', 'templates'),
+    os.path.join(os.getcwd(), 'templates'),
+    os.path.join(os.getcwd(), 'api', 'templates')
+]
+valid_tpl_dirs = [d for d in tpl_candidates if os.path.isdir(d)]
+if valid_tpl_dirs:
+    app.jinja_loader = jinja2.ChoiceLoader([jinja2.FileSystemLoader(d) for d in valid_tpl_dirs])
 
 admission_queue = AdmissionQueue()
 subject_queues = SubjectQueueManager()
@@ -35,11 +47,15 @@ hydrate_queue_from_db()
 
 
 @app.route("/")
+@app.route("/api/index")
+@app.route("/api/index.py")
 def index():
     return render_template("index.html")
 
 
 @app.route("/admin")
+@app.route("/api/index/admin")
+@app.route("/api/index.py/admin")
 def admin_page():
     return render_template("admin.html")
 
