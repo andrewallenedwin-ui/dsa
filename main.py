@@ -50,6 +50,17 @@ hydrate_queue_from_db()
 @app.route("/api/index")
 @app.route("/api/index.py")
 def index():
+    if request.args.get("debug") == "1":
+        return jsonify({
+            "PATH_INFO": request.environ.get("PATH_INFO"),
+            "HTTP_X_MATCHED_PATH": request.environ.get("HTTP_X_MATCHED_PATH"),
+            "HTTP_X_VERCEL_MATCHED_PATH": request.environ.get("HTTP_X_VERCEL_MATCHED_PATH"),
+            "REQUEST_URI": request.environ.get("REQUEST_URI"),
+            "RAW_URI": request.environ.get("RAW_URI"),
+            "QUERY_STRING": request.environ.get("QUERY_STRING"),
+            "headers": dict(request.headers),
+            "keys": [k for k in request.environ.keys() if 'VERCEL' in k.upper() or 'PATH' in k.upper() or 'URI' in k.upper()]
+        })
     route_arg = (request.args.get("route") or "").lower()
     page_arg = (request.args.get("__page") or "").lower()
     vpath_arg = (request.args.get("__vercel_path") or "").lower()
