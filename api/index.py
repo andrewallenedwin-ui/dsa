@@ -15,12 +15,12 @@ class VercelPathMiddleware:
 
     def __call__(self, environ, start_response):
         qs = environ.get('QUERY_STRING', '')
-        if 'route=' in qs:
+        if 'route=' in qs or '__page=' in qs:
             params = parse_qs(qs)
-            route_val = params.get('route', [''])[0].strip()
-            if route_val == 'admin':
+            route_val = (params.get('route', [''])[0] or params.get('__page', [''])[0]).strip()
+            if 'admin' in route_val:
                 environ['PATH_INFO'] = '/admin'
-            elif route_val in ['index', '', '/']:
+            elif route_val in ['index', '', '/', 'student']:
                 environ['PATH_INFO'] = '/'
             elif route_val.startswith('api/'):
                 environ['PATH_INFO'] = '/' + route_val
