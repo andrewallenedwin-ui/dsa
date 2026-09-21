@@ -46,26 +46,73 @@ def hydrate_queue_from_db():
 hydrate_queue_from_db()
 
 
-@app.route("/")
-@app.route("/api/index")
-@app.route("/api/index.py")
+@app.route("/", methods=["GET", "POST"])
+@app.route("/api/index", methods=["GET", "POST"])
+@app.route("/api/index.py", methods=["GET", "POST"])
 def index():
-    if request.args.get("debug") == "1":
-        return jsonify({
-            "PATH_INFO": request.environ.get("PATH_INFO"),
-            "HTTP_X_MATCHED_PATH": request.environ.get("HTTP_X_MATCHED_PATH"),
-            "HTTP_X_VERCEL_MATCHED_PATH": request.environ.get("HTTP_X_VERCEL_MATCHED_PATH"),
-            "REQUEST_URI": request.environ.get("REQUEST_URI"),
-            "RAW_URI": request.environ.get("RAW_URI"),
-            "QUERY_STRING": request.environ.get("QUERY_STRING"),
-            "headers": dict(request.headers),
-            "keys": [k for k in request.environ.keys() if 'VERCEL' in k.upper() or 'PATH' in k.upper() or 'URI' in k.upper()]
-        })
-    route_arg = (request.args.get("route") or "").lower()
-    page_arg = (request.args.get("__page") or "").lower()
-    vpath_arg = (request.args.get("__vercel_path") or "").lower()
-    if "admin" in route_arg or "admin" in page_arg or "admin" in vpath_arg:
-        return render_template("admin.html")
+    route_param = (
+        request.args.get("route") or
+        request.args.get("__page") or
+        request.args.get("__vercel_path") or
+        ""
+    ).strip().strip("/")
+
+    # Strip api/ prefix if present for uniform routing
+    clean_route = route_param[4:] if route_param.startswith("api/") else route_param
+
+    if clean_route:
+        if "admin" in clean_route.lower():
+            return admin_page()
+
+        if clean_route == "courses":
+            return get_courses()
+
+        if clean_route == "students":
+            return students()
+
+        if clean_route == "dashboard":
+            return dashboard()
+
+        if clean_route == "rejections":
+            return get_rejections()
+
+        if clean_route == "export-students":
+            return export_students()
+
+        if clean_route == "merit-sort":
+            return merit_sort()
+
+        if clean_route.startswith("queue/"):
+            code = clean_route.split("/", 1)[1]
+            return get_subject_queue(code)
+
+        if clean_route.startswith("student/") and "verify-cert" not in clean_route:
+            ident = clean_route.split("/", 1)[1]
+            return student_status(ident)
+
+        if clean_route.startswith("static/"):
+            filename = clean_route[7:]
+            return serve_static_file(filename)
+
+        if request.method == "POST":
+            if clean_route == "apply":
+                return apply()
+            if clean_route == "admit-next":
+                return admit_next()
+            if clean_route == "undo":
+                return undo()
+            if clean_route == "reset-demo":
+                return reset_demo()
+            if clean_route == "chat":
+                return chat()
+            if clean_route.startswith("reject/"):
+                sid = int(clean_route.split("/", 1)[1])
+                return reject_student(sid)
+            if "verify-cert" in clean_route:
+                parts = clean_route.split("/")
+                sid = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
+                return verify_certificate(sid)
+
     return render_template("index.html")
 
 
