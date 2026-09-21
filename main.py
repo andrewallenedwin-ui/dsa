@@ -58,6 +58,21 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/debug-env")
+@app.route("/api/debug-env")
+def debug_env():
+    return jsonify({
+        "PATH_INFO": request.environ.get("PATH_INFO"),
+        "REQUEST_URI": request.environ.get("REQUEST_URI"),
+        "RAW_URI": request.environ.get("RAW_URI"),
+        "HTTP_X_MATCHED_PATH": request.environ.get("HTTP_X_MATCHED_PATH"),
+        "HTTP_X_VERCEL_MATCHED_PATH": request.environ.get("HTTP_X_VERCEL_MATCHED_PATH"),
+        "HTTP_X_FORWARDED_URI": request.environ.get("HTTP_X_FORWARDED_URI"),
+        "QUERY_STRING": request.environ.get("QUERY_STRING"),
+        "all_keys": [k for k in request.environ.keys() if 'PATH' in k or 'URI' in k or 'VERCEL' in k or 'ROUTE' in k]
+    })
+
+
 @app.route("/admin")
 @app.route("/api/index/admin")
 @app.route("/api/index.py/admin")
