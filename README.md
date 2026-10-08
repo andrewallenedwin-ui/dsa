@@ -84,8 +84,8 @@ python app.py
 *(Or run `python main.py`)*
 
 ### 3. Open in Browser
-- **Student Portal:** [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
-- **Master Admin Dashboard:** [http://127.0.0.1:5000/admin](http://127.0.0.1:5000/admin)
+- **Student Portal:** https://abc-college-admissions-live.vercel.app
+- **Master Admin Dashboard:** https://abc-college-admissions-live.vercel.app/admin
 
 ### 4. Run Automated Tests
 ```bash
@@ -97,13 +97,13 @@ python test_suite.py
 ## 🎙️ Viva & Project Demo Guide for ICA 2
 
 1. **Step 1: Student Application (Queue Enqueue)**
-   - Go to [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+   - Go to https://abc-college-admissions-live.vercel.app/.
    - Fill out an application form for an Arts & Science course (e.g., B.Sc Computer Science with 95%).
    - Notice the generated **Application ID** and **Queue Position**.
    - Test the **Application Status Tracker** using the ID to see the visual 4-step progress bar.
 
 2. **Step 2: Admission Processing & Undo Desk (Queue Dequeue & Stack Pop)**
-   - Switch to the [Admin Dashboard](http://127.0.0.1:5000/admin).
+   - Switch to the (https://abc-college-admissions-live.vercel.app/admin).
    - Observe the **Admission Queue (FIFO)** conveyor showing students in submission order.
    - Click **"Admit Next Student — dequeue()"**; notice the student moves out of the queue and is allocated a seat.
    - Look at the **Admin Action Stack (LIFO)**; the admission is pushed to the top plate of the stack.
@@ -116,4 +116,4 @@ python test_suite.py
    - Watch the bars animate pass-by-pass showing comparisons, the selected maximum candidate, and the rank-by-rank swap until the full merit list is constructed!
 
 4. **Step 4: Master Board Hourly Monitoring**
-   - Show the examiner the **Seat Filling Status Per Hour** chart and the **Department-Wise Quota Progress Bars**, proving that the college can monitor admission inflow throughout the day.
+   - Show the examiner the **Seat Filling Status Per Hour** chart and the **Department-Wise Quota Progress Bars**, proving that the college can monitor admission inflow throughout the day.
